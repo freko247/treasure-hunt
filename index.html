@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OPERATION SØNDERMARKEN // AGENT TERMINAL</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS (Free OpenStreetMap) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <style>
+    :root {
+      --bg: #070b0d;
+      --card-bg: rgba(13, 23, 28, 0.92);
+      --accent-cyan: #00f3ff;
+      --accent-green: #00ff88;
+      --accent-amber: #ffb703;
+      --accent-red: #ff3366;
+      --text-main: #d8f6f8;
+      --text-dim: #6d9096;
+      --border-glow: rgba(0, 243, 255, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(0, 243, 255, 0.12) 0%, transparent 70%),
+        linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 24px 24px, 24px 24px;
+      color: var(--text-main);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle CRT scanline effect */
+    body::before {
+      content: " ";
+      position: fixed;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%);
+      background-size: 100% 4px;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 2;
+      padding-bottom: 24px;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.08);
+    }
+
+    .agent-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .op-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .score-badge {
+      background: rgba(255, 183, 3, 0.15);
+      border: 1px solid var(--accent-amber);
+      color: var(--accent-amber);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 0 10px rgba(255, 183, 3, 0.2);
+    }
+
+    .penalty-toast {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 6px;
+      background: rgba(255, 51, 102, 0.95);
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+      animation: floatFade 1.6s forwards ease-out;
+      z-index: 1000;
+    }
+
+    @keyframes floatFade {
+      0% { opacity: 0; transform: translateY(-4px) scale(0.9); }
+      15% { opacity: 1; transform: translateY(0) scale(1); }
+      75% { opacity: 1; transform: translateY(0) scale(1); }
+      100% { opacity: 0; transform: translateY(8px) scale(0.95); }
+    }
+
+    .icon-btn {
+      background: rgba(0, 243, 255, 0.1);
+      border: 1px solid var(--border-glow);
+      color: var(--accent-cyan);
+      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.95);
+      background: rgba(0, 243, 255, 0.25);
+    }
+
+    /* VAULT CODE DISPLAY */
+    .vault-tracker {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+
+    .tracker-label {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .code-slots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .code-slot {
+      width: 44px;
+      height: 48px;
+      border: 2px solid var(--border-glow);
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      transition: all 0.4s ease;
+    }
+
+    .code-slot.unlocked {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.45);
+      background: rgba(0, 255, 136, 0.12);
+      animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.7); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* MISSION CARD */
+    .mission-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-glow);
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .mission-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 10px 10px 0 0;
+    }
+
+    .badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stage-badge {
+      background: rgba(0, 243, 255, 0.15);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+
+    .target-code {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .target-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      line-height: 1.25;
+    }
+
+    /* MAP CONTAINER */
+    .map-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .map-frame {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      border-radius: 8px;
+      border: 1px solid var(--border-glow);
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+      transition: height 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .map-frame.large-map {
+      height: 380px;
+    }
+
+    #leafletMap {
+      width: 100%;
+      height: 100%;
+      background: #111;
+      z-index: 10;
+    }
+
+    /* Map Buttons */
+    .expand-map-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      z-index: 500;
+      background: rgba(13, 23, 28, 0.9);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .expand-map-btn:active {
+      background: rgba(0, 243, 255, 0.25);
+    }
+
+    /* GPS Track Overlay Button on Map */
+    .gps-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      z-index: 500;
+      background: rgba(13, 23, 28, 0.9);
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .gps-btn:active {
+      background: rgba(0, 243, 255, 0.25);
+    }
+
+    .distance-banner {
+      font-size: 12px;
+      color: var(--accent-amber);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px 10px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* CUSTOM RADAR RETICLE PIN (Target) */
+    .radar-pin {
+      position: relative;
+      width: 32px;
+      height: 32px;
+    }
+    .radar-core {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 12px; height: 12px;
+      margin: -6px 0 0 -6px;
+      background: var(--accent-red);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-red);
+    }
+    .radar-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 30px; height: 30px;
+      margin: -15px 0 0 -15px;
+      border: 2px solid var(--accent-red);
+      border-radius: 50%;
+      animation: radarPulse 1.8s infinite ease-out;
+    }
+    @keyframes radarPulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* SQUAD BLUE PIN (Current User Location) */
+    .squad-pin {
+      position: relative;
+      width: 24px;
+      height: 24px;
+    }
+    .squad-core {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 12px; height: 12px;
+      margin: -6px 0 0 -6px;
+      background: #0077ff;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #0077ff;
+    }
+    .squad-pulse {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 24px; height: 24px;
+      margin: -12px 0 0 -12px;
+      border: 2px solid #00aaff;
+      border-radius: 50%;
+      animation: squadRadar 2s infinite ease-out;
+    }
+    @keyframes squadRadar {
+      0% { transform: scale(0.6); opacity: 1; }
+      100% { transform: scale(2.0); opacity: 0; }
+    }
+
+    /* CLUE BRIEFING */
+    .briefing-box {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+      padding: 10px 12px;
+      line-height: 1.5;
+      font-size: 14px;
+      border: 1px dashed rgba(0, 243, 255, 0.2);
+      transition: all 0.25s ease;
+    }
+
+    .briefing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .briefing-prompt {
+      color: var(--accent-cyan);
+      font-weight: bold;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .minimize-toggle-btn {
+      background: rgba(0, 243, 255, 0.12);
+      border: 1px solid var(--border-glow);
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-family: inherit;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .minimize-toggle-btn:active {
+      background: rgba(0, 243, 255, 0.3);
+    }
+
+    .briefing-content {
+      margin-top: 6px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .briefing-box.minimized {
+      padding: 8px 12px;
+      background: rgba(0, 243, 255, 0.04);
+    }
+
+    .briefing-box.minimized .briefing-content {
+      display: none;
+    }
+
+    /* INPUT SECTION */
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .code-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid var(--border-glow);
+      border-radius: 6px;
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      padding: 12px 14px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .code-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(90deg, #00b4d8, #0077b6);
+      border: none;
+      color: #fff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 1.5px;
+      box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+      transition: all 0.2s;
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+      filter: brightness(1.2);
+    }
+
+    /* HINT & SUPPORT */
+    .hint-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hint-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-family: inherit;
+      font-size: 12px;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hint-text {
+      background: rgba(255, 183, 3, 0.1);
+      border: 1px solid var(--accent-amber);
+      color: #ffe899;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* ANIMATIONS & FEEDBACK */
+    .shake {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+      border-color: var(--accent-red) !important;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+      40%, 60% { transform: translate3d(6px, 0, 0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-msg {
+      font-size: 13px;
+      text-align: center;
+      min-height: 18px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .feedback-msg.error { color: var(--accent-red); }
+    .feedback-msg.success { color: var(--accent-green); }
+
+    /* VICTORY OVERLAY */
+    .victory-screen {
+      display: none;
+      background: var(--card-bg);
+      border: 2px solid var(--accent-green);
+      border-radius: 12px;
+      padding: 24px 18px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.25);
+      animation: fadeIn 0.6s ease;
+    }
+
+    .victory-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--accent-green);
+      margin-bottom: 8px;
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+
+    .victory-code-box {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px dashed var(--accent-green);
+      padding: 16px;
+      border-radius: 8px;
+      margin: 16px 0;
+    }
+
+    .victory-code-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .victory-code-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      letter-spacing: 6px;
+    }
+
+    .victory-score-box {
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid var(--accent-amber);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 14px 0;
+      box-shadow: 0 0 15px rgba(255, 183, 3, 0.15);
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-card {
+      background: #0d171c;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      padding: 20px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      color: var(--accent-cyan);
+    }
+
+    .modal-btn {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--text-dim);
+      color: #fff;
+      font-family: inherit;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .modal-btn.danger {
+      background: rgba(255, 51, 102, 0.15);
+      border-color: var(--accent-red);
+      color: var(--accent-red);
+    }
+
+    /* INTRO / RULES MODAL */
+    .intro-card {
+      border-color: var(--accent-green);
+      box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+      gap: 8px;
+    }
+
+    .intro-lead {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .intro-section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--accent-amber);
+      margin-top: 6px;
+    }
+
+    .intro-list {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 13px;
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    .intro-list li + li {
+      margin-top: 3px;
+    }
+
+    .intro-start-btn {
+      margin-top: 8px;
+      padding: 14px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: rgba(0, 255, 136, 0.15);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    /* TREASURE LOCATION (victory screen) */
+    .treasure-coords {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: var(--accent-amber);
+      margin-bottom: 10px;
+    }
+
+    .treasure-map-frame {
+      height: 200px;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    #treasureMap {
+      width: 100%;
+      height: 100%;
+    }
+
+    .treasure-map-link {
+      display: inline-block;
+      font-size: 13px;
+      color: var(--accent-cyan);
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- HEADER -->
+    <header>
+      <div class="agent-tag">
+        <div class="status-dot"></div>
+        <span class="op-title">AGENT PATRULJE // SØNDERMARKEN</span>
+      </div>
+      <div class="header-actions">
+        <div class="score-container" id="scoreContainer">
+          <div class="score-badge" id="scoreBadge" title="Patruljens samlede score">
+            ⭐ <span id="scoreVal">1000</span>
+          </div>
+          <div id="penaltyToast" class="penalty-toast" style="display:none;"></div>
+        </div>
+        <button class="icon-btn" id="audioToggleBtn" title="Slå lyd til/fra">🔊</button>
+        <button class="icon-btn" id="adminBtn" title="Missionskontrol / Forældre">⚙️</button>
+      </div>
+    </header>
+
+    <!-- 4-DIGIT COMBINATION LOCK TRACKER -->
+    <div class="vault-tracker">
+      <div class="tracker-label">Skattekistens Kodelås (4 cifre)</div>
+      <div class="code-slots">
+        <div class="code-slot" id="slot-0">?</div>
+        <div class="code-slot" id="slot-1">?</div>
+        <div class="code-slot" id="slot-2">?</div>
+        <div class="code-slot" id="slot-3">?</div>
+      </div>
+    </div>
+
+    <!-- ACTIVE MISSION CARD -->
+    <div class="mission-card" id="missionCard">
+      <div class="badge-row">
+        <span class="stage-badge" id="stageBadge">POST 1 / 4</span>
+        <span class="target-code" id="targetCodeId">POST-ID: #01</span>
+      </div>
+
+      <h1 class="target-title" id="checkpointTitle">Kildegrotten (Stengrotten)</h1>
+
+      <!-- EMBEDDED OPENSTREETMAP -->
+      <div class="map-section">
+        <div class="map-header">
+          <span>🛰️ RADAR & SATELLITKORT</span>
+          <span id="coordsDisplay">55°40'10.6"N 12°31'09.8"E</span>
+        </div>
+        
+        <div class="map-frame" id="mapFrame">
+          <div id="leafletMap"></div>
+          <button class="expand-map-btn" id="expandMapBtn" title="Gør kortet større">
+            ⛶ <span>STORT KORT</span>
+          </button>
+          <button class="gps-btn" id="trackGpsBtn" title="Opdater patruljens placering (-25 PTS)">
+            📍 <span>FIND OS (-25 PTS)</span>
+          </button>
+        </div>
+
+        <div class="distance-banner">
+          <span id="distanceText">🎯 Mål: I Søndermarken</span>
+        </div>
+      </div>
+
+      <!-- BRIEFING & RIDDLE (COLLAPSIBLE) -->
+      <div class="briefing-box" id="briefingBox">
+        <div class="briefing-header" id="briefingHeader">
+          <span class="briefing-prompt">📜 MISSIONSORDRE</span>
+          <button type="button" class="minimize-toggle-btn" id="toggleBriefingBtn">− SKJUL</button>
+        </div>
+        <div id="briefingContent" class="briefing-content">
+          Dybt inde blandt træerne ligger den historiske stengrotte. Gå hen til den mørke grotteåbning. Hvilket naturelement strømmede ud fra denne kilde: ILD, VAND eller VIND?
+        </div>
+      </div>
+
+      <!-- CODE INPUT FORM -->
+      <div class="input-section">
+        <input 
+          type="text" 
+          id="answerInput" 
+          class="code-input" 
+          placeholder="INDTAST SVARET HER..." 
+          autocomplete="off" 
+          autocorrect="off" 
+          autocapitalize="characters"
+        />
+        <button class="submit-btn" id="submitBtn">AFKRYPTER & TRANSMITTER</button>
+        <div class="feedback-msg" id="feedbackMsg"></div>
+      </div>
+
+      <!-- HINT SYSTEM -->
+      <div class="hint-container">
+        <button class="hint-btn" id="hintToggleBtn">Anmod om hint fra basen (-50 PTS)</button>
+        <div class="hint-text" id="hintText">
+          Hint fra basen: Kildegrotten har fået sit navn efter en kilde. Tænk over hvad der springer ud af en kilde!
+        </div>
+      </div>
+    </div>
+
+    <!-- VICTORY SCREEN -->
+    <div class="victory-screen" id="victoryScreen">
+      <div class="victory-title">MISSION FULDFØRT!</div>
+      <p style="color: var(--text-main); font-size: 15px; margin-bottom: 12px;">
+        Fantastisk arbejde, agenter! Alle 4 poster er løst, og kodelåsen til skattekisten er hacket!
+      </p>
+
+      <div class="victory-code-box">
+        <div class="victory-code-label">KODEN TIL HÆNGELÅSEN (4 CIFRE)</div>
+        <div class="victory-code-val" id="finalCodeDisplay">[fjernet]</div>
+      </div>
+
+      <div class="victory-score-box">
+        <div style="font-size: 11px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;">PATRULJENS SLUT-SCORE</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 800; color: var(--accent-amber); margin: 6px 0;" id="finalScoreDisplay">1000 POINT</div>
+        <div style="font-size: 13px; font-weight: bold; color: var(--accent-green);" id="finalRankDisplay">🏆 RANG: MESTER-SPION (LEGENDARISK)</div>
+      </div>
+
+      <p style="font-size: 14px; color: var(--accent-cyan); margin: 12px 0 8px;" id="finalLocationTitle">
+        SKATTENS PLACERING: I [fjernet]
+      </p>
+
+      <div class="treasure-coords" id="treasureCoordsDisplay">📍 [fjernet]</div>
+
+      <div class="treasure-map-frame">
+        <div id="treasureMap"></div>
+      </div>
+
+      <a class="treasure-map-link" id="treasureMapLink" href="#" target="_blank" rel="noopener">Åbn i kort-app</a>
+
+      <p style="font-size: 13px; color: var(--text-dim);">
+        Skattekisten er gemt i [fjernet]. Find den, og drej hængelåsen til koden ovenfor for at åbne fødselsdagsskatten!
+      </p>
+    </div>
+  </div>
+
+  <!-- INTRO / RULES MODAL (shown the first time the mission starts) -->
+  <div class="modal-backdrop" id="introModal">
+    <div class="modal-card intro-card">
+      <div class="modal-title">🕵️ VELKOMMEN, AGENTER!</div>
+      <p class="intro-lead">
+        Jeres mission: find 4 hemmelige poster i Søndermarken, knæk gåderne og få koden til skattekisten.
+      </p>
+
+      <div class="intro-section-title">SÅDAN GØR I</div>
+      <ol class="intro-list">
+        <li>Kortet viser den næste post med en blinkende radar. Brug <strong>STORT KORT</strong> for at se mere, og gå derhen sammen.</li>
+        <li>Læs <strong>📜 Missionsordren</strong> og find svaret på posten.</li>
+        <li>Skriv svaret og tryk <strong>AFKRYPTER & TRANSMITTER</strong>.</li>
+        <li>Hvert rigtigt svar giver et ciffer til hængelåsen og sender jer videre til næste post.</li>
+        <li>Når alle 4 poster er løst, får I koden og skattens placering.</li>
+      </ol>
+
+      <div class="intro-section-title">REGLER</div>
+      <ul class="intro-list">
+        <li>I starter med <strong>1000 point</strong>.</li>
+        <li>Forkert svar: <strong>-25 point</strong>.</li>
+        <li>📍 <strong>FIND OS</strong> viser jeres placering på kortet: <strong>-25 point</strong> hver gang.</li>
+        <li>Hint fra basen: <strong>-50 point</strong>.</li>
+        <li>Hold sammen som patrulje, og pas på trafik og dyr.</li>
+      </ul>
+
+      <div class="intro-section-title">SPION-RANG</div>
+      <ul class="intro-list">
+        <li>🏆 900+ point: Mester-Spion</li>
+        <li>🎖️ 750–899 point: Elite-Agent</li>
+        <li>🕵️ 500–749 point: Felt-Spion</li>
+        <li>🔎 Under 500 point: Rekrut</li>
+      </ul>
+
+      <button class="modal-btn intro-start-btn" id="startMissionBtn">START MISSIONEN</button>
+    </div>
+  </div>
+
+  <!-- ADMIN / PARENT CONTROLS MODAL -->
+  <div class="modal-backdrop" id="adminModal">
+    <div class="modal-card">
+      <div class="modal-title">MISSIONSKONTROL (FORÆLDRE-STYRING)</div>
+      <p style="font-size: 12px; color: var(--text-dim);">
+        Brug disse knapper til at se alle svar, teste posterne eller nulstille spillet inden fødselsdagen starter.
+      </p>
+
+      <div style="font-size: 12px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px;" id="adminCheatSheet">
+        <!-- populated dynamically -->
+      </div>
+
+      <button class="modal-btn" id="jumpNextBtn">Spring frem til næste post</button>
+      <button class="modal-btn danger" id="resetGameBtn">Nulstil hele skattejagten (Start forfra)</button>
+      <button class="modal-btn" id="closeModalBtn">Luk kontrolpanel</button>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS (Free OpenStreetMap library) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    /* =====================================================================
+       AUDIO SYNTHESIZER (Web Audio API)
+       ===================================================================== */
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (!audioEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + delay);
+        osc.stop(audioCtx.currentTime + delay + duration);
+      } catch (e) {}
+    }
+
+    function playSuccessSound() {
+      playTone(440, 'triangle', 0.1, 0);
+      playTone(554.37, 'triangle', 0.1, 0.08);
+      playTone(659.25, 'triangle', 0.15, 0.16);
+      playTone(880, 'triangle', 0.35, 0.24);
+    }
+
+    function playErrorSound() {
+      playTone(180, 'sawtooth', 0.15, 0);
+      playTone(140, 'sawtooth', 0.25, 0.12);
+    }
+
+    function playPenaltySound() {
+      playTone(260, 'sawtooth', 0.09, 0);
+      playTone(175, 'sawtooth', 0.18, 0.08);
+    }
+
+    function playKeySound() {
+      playTone(800 + Math.random() * 200, 'sine', 0.03, 0);
+    }
+
+    /* =====================================================================
+       CONFIGURABLE SETTINGS & CHECKPOINTS (Your Exact Søndermarken Coordinates)
+       ===================================================================== */
+    // Change this to whatever 4-digit combination is on your physical padlock!
+    const FINAL_PADLOCK_CODE = ["?", "?", "?", "?"];
+
+    const CHECKPOINTS = [
+      {
+        id: "POST-01",
+        title: "Kildegrotten (Stengrotten)",
+        lat: 55.669611,
+        lng: 12.519389,
+        coordsDisplay: "55°40'10.6\"N 12°31'09.8\"E",
+        briefing: "Dybt inde blandt træerne ligger den historiske stengrotte. Gå hen til den mørke grotteåbning. Hvilket naturelement strømmede ud fra denne kilde: ILD, VAND eller VIND?",
+        hint: "Kildegrotten har fået sit navn efter en kilde. Tænk over hvad der springer ud af en kilde!",
+        answers: ["VAND", "VANDET", "WATER"],
+        unlockedDigit: FINAL_PADLOCK_CODE[0],
+        digitSlot: 0
+      },
+      {
+        id: "POST-02",
+        title: "Zoo Udsigtspunktet (Savannen)",
+        lat: 55.670333,
+        lng: 12.519278,
+        coordsDisplay: "55°40'13.2\"N 12°31'09.4\"E",
+        briefing: "Gå mod det nordlige udsigtspunkt, hvor man kan kigge over muren ind i København Zoo. Lyt og kig godt efter. Hvilket rovdyr kaldes også for 'dyrenes konge'?",
+        hint: "Rovdyret med den store manke, der brøler inde i Zoo (LØVE).",
+        answers: ["LØVE", "LØVEN", "LOVE", "LOVEN", "LION", "LIONS"],
+        unlockedDigit: FINAL_PADLOCK_CODE[1],
+        digitSlot: 1
+      },
+      {
+        id: "POST-03",
+        title: "Cisternerne (De Hemmelige Pyramider)",
+        lat: 55.669472,
+        lng: 12.524194,
+        coordsDisplay: "55°40'10.1\"N 12°31'27.1\"E",
+        briefing: "Gå mod Cisternernes glaspyramider, der stikker op af græsset over det gamle underjordiske vandreservoir. Undersøg pyramiden. Hvor mange trekantede glassider mødes i toppen?",
+        hint: "Tæl de skrå trekantede sider på pyramiden (Svaret er et tal: 4).",
+        answers: ["4", "FIRE", "FOUR"],
+        unlockedDigit: FINAL_PADLOCK_CODE[2],
+        digitSlot: 2
+      },
+      {
+        id: "POST-04",
+        title: "Det Norske Hus (Bjælkehytten)",
+        lat: 55.670333,
+        lng: 12.526861,
+        coordsDisplay: "55°40'13.2\"N 12°31'36.7\"E",
+        briefing: "Find den historiske bjælkehytte bygget i 1790. Hvilket materiale er denne skovhytte primært bygget af: TRÆ, MURSTEN eller GLAS?",
+        hint: "Kig godt på væggene og stammerne, som hytten er bygget af.",
+        answers: ["TRÆ", "TRAE", "TRA", "WOOD", "BJÆLKER", "TØMMER"],
+        unlockedDigit: FINAL_PADLOCK_CODE[3],
+        digitSlot: 3
+      }
+    ];
+
+    // Where the treasure chest is hidden. Shown on the victory screen.
+    const TREASURE = {
+      title: "[fjernet]",
+      lat: 0.000000,
+      lng: 0.000000,
+      coordsDisplay: "[fjernet]"
+    };
+
+    /* =====================================================================
+       LEAFLET MAP INTEGRATION (OpenStreetMap Tiles - Free!)
+       ===================================================================== */
+    let map = null;
+    let targetMarker = null;
+    let squadMarker = null;
+    let userLocation = null;
+
+    function initMap() {
+      // Søndermarken center coordinates
+      map = L.map('leafletMap', {
+        zoomControl: false,
+        attributionControl: false
+      }).setView([55.6720, 12.5260], 16);
+
+      // Free OpenStreetMap Standard Tiles (clearly shows all trails, monuments, trees)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      // Attribution placed minimally
+      L.control.attribution({ position: 'bottomleft' }).addTo(map);
+
+      // Zoom buttons placed nicely
+      L.control.zoom({ position: 'topright' }).addTo(map);
+    }
+
+    function createRadarIcon() {
+      return L.divIcon({
+        className: 'custom-radar-pin',
+        html: '<div class="radar-pin"><div class="radar-ring"></div><div class="radar-core"></div></div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+    }
+
+    function createSquadIcon() {
+      return L.divIcon({
+        className: 'custom-squad-pin',
+        html: '<div class="squad-pin"><div class="squad-pulse"></div><div class="squad-core"></div></div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+    }
+
+    /* Path line between squad and current target */
+    let pathLine = null;
+
+    function updatePathLine() {
+      if (!map || !userLocation) return;
+      const current = CHECKPOINTS[state.currentStageIndex];
+      if (!current || state.completed) {
+        if (pathLine) {
+          map.removeLayer(pathLine);
+          pathLine = null;
+        }
+        return;
+      }
+
+      const latlngs = [
+        [userLocation.lat, userLocation.lng],
+        [current.lat, current.lng]
+      ];
+
+      if (pathLine) {
+        pathLine.setLatLngs(latlngs);
+      } else {
+        pathLine = L.polyline(latlngs, {
+          color: '#00f3ff',
+          weight: 4,
+          opacity: 0.9,
+          dashArray: '8, 10',
+          lineCap: 'round',
+          lineJoin: 'round'
+        }).addTo(map);
+      }
+    }
+
+    function updateMapTarget(lat, lng) {
+      if (!map) return;
+
+      if (targetMarker) {
+        targetMarker.setLatLng([lat, lng]);
+      } else {
+        targetMarker = L.marker([lat, lng], { icon: createRadarIcon() }).addTo(map);
+      }
+
+      // Smooth pan to new waypoint
+      map.flyTo([lat, lng], 17, { duration: 1.2 });
+      setTimeout(() => map.invalidateSize(), 300);
+      updateDistance();
+      updatePathLine();
+    }
+
+    /* Haversine distance in meters */
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return Math.round(R * c);
+    }
+
+    function updateDistance() {
+      const distanceEl = document.getElementById("distanceText");
+      const current = CHECKPOINTS[state.currentStageIndex];
+      if (userLocation && current) {
+        const dist = calculateDistance(userLocation.lat, userLocation.lng, current.lat, current.lng);
+        distanceEl.textContent = `📍 Afstand til post: ~${dist} meter`;
+      } else {
+        distanceEl.textContent = `🎯 Mål: I Søndermarken`;
+      }
+    }
+
+    // Geolocation Squad Tracker
+    const trackGpsBtn = document.getElementById("trackGpsBtn");
+    trackGpsBtn.addEventListener("click", () => {
+      // Score deduction for requesting squad position
+      deductScore(GPS_PENALTY, "GPS");
+      state.gpsUsed = (state.gpsUsed || 0) + 1;
+      saveState();
+
+      if (!navigator.geolocation) {
+        alert("GPS understøttes ikke af denne browser.");
+        return;
+      }
+      trackGpsBtn.innerHTML = "📡 <span>SØGER EFTER GPS...</span>";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userLocation = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          };
+
+          if (squadMarker) {
+            squadMarker.setLatLng([userLocation.lat, userLocation.lng]);
+          } else {
+            squadMarker = L.marker([userLocation.lat, userLocation.lng], { icon: createSquadIcon() }).addTo(map);
+          }
+
+          trackGpsBtn.innerHTML = "📍 <span>POSITION FUNDET</span>";
+          updateDistance();
+          updatePathLine();
+
+          // Fit bounds to show both squad and target
+          const current = CHECKPOINTS[state.currentStageIndex];
+          const bounds = L.latLngBounds([
+            [userLocation.lat, userLocation.lng],
+            [current.lat, current.lng]
+          ]);
+          map.fitBounds(bounds, { padding: [45, 45], maxZoom: 18 });
+        },
+        (err) => {
+          alert("Kunne ikke hente GPS-signal. Sørg for at tillade lokalitet/placering i browseren.");
+          trackGpsBtn.innerHTML = "📍 <span>FIND OS (-25 PTS)</span>";
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    /* =====================================================================
+       STATE MANAGEMENT & LOCAL STORAGE
+       ===================================================================== */
+    const STORAGE_KEY = "sondermarken_agent_mission_v6";
+    const INITIAL_SCORE = 1000;
+    const HINT_PENALTY = 50;
+    const GPS_PENALTY = 25;
+    const WRONG_PENALTY = 25;
+
+    let state = {
+      currentStageIndex: 0,
+      unlockedDigits: [null, null, null, null],
+      completed: false,
+      score: INITIAL_SCORE,
+      hintsUsed: 0,
+      gpsUsed: 0,
+      wrongAnswers: 0,
+      introSeen: false
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+          if (state.score === undefined || state.score === null) {
+            state.score = INITIAL_SCORE;
+          }
+        } catch (e) {}
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    /* Score deduction and toast */
+    let toastTimer = null;
+    function showPenaltyToast(text) {
+      const toast = document.getElementById("penaltyToast");
+      if (!toast) return;
+      toast.textContent = text;
+      toast.style.display = "block";
+      toast.style.animation = "none";
+      toast.offsetHeight; // trigger reflow
+      toast.style.animation = "floatFade 1.6s forwards ease-out";
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.style.display = "none";
+      }, 1600);
+    }
+
+    function deductScore(amount, reason) {
+      state.score = Math.max(0, state.score - amount);
+      saveState();
+      renderScore();
+      showPenaltyToast(`-${amount} PTS (${reason})`);
+      playPenaltySound();
+    }
+
+    function renderScore() {
+      const scoreVal = document.getElementById("scoreVal");
+      if (scoreVal) {
+        scoreVal.textContent = state.score;
+      }
+    }
+
+    function getAgentRank(score) {
+      if (score >= 900) return "🏆 RANG: MESTER-SPION (LEGENDARISK)";
+      if (score >= 750) return "🎖️ RANG: ELITE-AGENT (FREMRAGENDE)";
+      if (score >= 500) return "🕵️ RANG: FELT-SPION (GODKENDT)";
+      return "🔎 RANG: REKRUT (GENNEMFØRT)";
+    }
+
+    /* =====================================================================
+       UI RENDERING
+       ===================================================================== */
+    const checkpointTitle = document.getElementById("checkpointTitle");
+    const stageBadge = document.getElementById("stageBadge");
+    const targetCodeId = document.getElementById("targetCodeId");
+    const coordsDisplay = document.getElementById("coordsDisplay");
+    const briefingContent = document.getElementById("briefingContent");
+    const answerInput = document.getElementById("answerInput");
+    const feedbackMsg = document.getElementById("feedbackMsg");
+    const hintText = document.getElementById("hintText");
+    const missionCard = document.getElementById("missionCard");
+    const victoryScreen = document.getElementById("victoryScreen");
+    const finalCodeDisplay = document.getElementById("finalCodeDisplay");
+
+    /* Treasure location on the victory screen */
+    let treasureMap = null;
+
+    function showTreasureLocation() {
+      document.getElementById("treasureCoordsDisplay").textContent = `📍 ${TREASURE.coordsDisplay}`;
+      document.getElementById("treasureMapLink").href =
+        `https://www.google.com/maps/search/?api=1&query=${TREASURE.lat},${TREASURE.lng}`;
+
+      if (!treasureMap) {
+        treasureMap = L.map('treasureMap', {
+          zoomControl: false,
+          attributionControl: false
+        }).setView([TREASURE.lat, TREASURE.lng], 18);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19
+        }).addTo(treasureMap);
+
+        L.marker([TREASURE.lat, TREASURE.lng], {
+          icon: L.divIcon({
+            className: 'treasure-pin',
+            html: '<div style="font-size: 30px; line-height: 1;">🧰</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+          })
+        }).addTo(treasureMap);
+      }
+
+      // The map is created while the victory screen becomes visible, so let Leaflet re-measure
+      setTimeout(() => {
+        treasureMap.invalidateSize();
+        treasureMap.setView([TREASURE.lat, TREASURE.lng], 18);
+      }, 300);
+    }
+
+    /* Intro / rules popup, shown the first time the mission starts */
+    const introModal = document.getElementById("introModal");
+
+    function showIntroIfNeeded() {
+      if (!state.introSeen && !state.completed) {
+        introModal.style.display = "flex";
+      }
+    }
+
+    document.getElementById("startMissionBtn").addEventListener("click", () => {
+      state.introSeen = true;
+      saveState();
+      introModal.style.display = "none";
+      initAudio();
+      playSuccessSound();
+    });
+
+    function render() {
+      renderScore();
+
+      state.unlockedDigits.forEach((digit, i) => {
+        const slotEl = document.getElementById(`slot-${i}`);
+        if (digit !== null) {
+          slotEl.textContent = digit;
+          slotEl.classList.add("unlocked");
+        } else {
+          slotEl.textContent = "?";
+          slotEl.classList.remove("unlocked");
+        }
+      });
+
+      if (state.completed) {
+        missionCard.style.display = "none";
+        victoryScreen.style.display = "block";
+        finalCodeDisplay.textContent = state.unlockedDigits.join(" ");
+        const finalScoreDisplay = document.getElementById("finalScoreDisplay");
+        const finalRankDisplay = document.getElementById("finalRankDisplay");
+        if (finalScoreDisplay) finalScoreDisplay.textContent = `${state.score} POINT`;
+        if (finalRankDisplay) finalRankDisplay.textContent = getAgentRank(state.score);
+        if (pathLine) {
+          map.removeLayer(pathLine);
+          pathLine = null;
+        }
+        showTreasureLocation();
+        return;
+      }
+
+      missionCard.style.display = "flex";
+      victoryScreen.style.display = "none";
+
+      const current = CHECKPOINTS[state.currentStageIndex];
+      stageBadge.textContent = `POST ${state.currentStageIndex + 1} / ${CHECKPOINTS.length}`;
+      targetCodeId.textContent = `POST-ID: #${state.currentStageIndex + 1}`;
+      checkpointTitle.textContent = current.title;
+      coordsDisplay.textContent = current.coordsDisplay;
+      briefingContent.textContent = current.briefing;
+      hintText.textContent = current.hint;
+      hintText.style.display = "none";
+      feedbackMsg.textContent = "";
+      feedbackMsg.className = "feedback-msg";
+      answerInput.value = "";
+
+      updateMapTarget(current.lat, current.lng);
+    }
+
+    /* =====================================================================
+       ANSWER VERIFICATION
+       ===================================================================== */
+    function normalize(str) {
+      return (str || "")
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9ÆØÅ]/g, "");
+    }
+
+    function checkAnswer() {
+      const current = CHECKPOINTS[state.currentStageIndex];
+      const rawVal = answerInput.value;
+      const cleanVal = normalize(rawVal);
+
+      if (!cleanVal) {
+        feedbackMsg.textContent = "INDTAST VENLIGST ET SVAR.";
+        feedbackMsg.className = "feedback-msg error";
+        playErrorSound();
+        return;
+      }
+
+      const isMatch = current.answers.some(ans => normalize(ans) === cleanVal);
+
+      if (isMatch) {
+        playSuccessSound();
+        feedbackMsg.textContent = "KORREKT! TRANSMITTERER NÆSTE POST...";
+        feedbackMsg.className = "feedback-msg success";
+
+        if (current.digitSlot !== null && current.unlockedDigit !== null) {
+          state.unlockedDigits[current.digitSlot] = current.unlockedDigit;
+        }
+
+        setTimeout(() => {
+          if (state.currentStageIndex < CHECKPOINTS.length - 1) {
+            state.currentStageIndex++;
+          } else {
+            state.completed = true;
+          }
+          saveState();
+          render();
+        }, 1200);
+
+      } else {
+        // Pointfradrag for forkert svar
+        deductScore(WRONG_PENALTY, "FORKERT SVAR");
+        state.wrongAnswers = (state.wrongAnswers || 0) + 1;
+        saveState();
+
+        playErrorSound();
+        feedbackMsg.textContent = `FORKERT KODE (-${WRONG_PENALTY} PTS)! TJEK INTEL OG PRØV IGEN.`;
+        feedbackMsg.className = "feedback-msg error";
+        answerInput.classList.add("shake");
+        setTimeout(() => {
+          answerInput.classList.remove("shake");
+        }, 400);
+      }
+    }
+
+    /* =====================================================================
+       EVENTS
+       ===================================================================== */
+    document.getElementById("submitBtn").addEventListener("click", checkAnswer);
+
+    answerInput.addEventListener("keydown", (e) => {
+      playKeySound();
+      if (e.key === "Enter") {
+        checkAnswer();
+      }
+    });
+
+    document.getElementById("hintToggleBtn").addEventListener("click", () => {
+      if (hintText.style.display === "block") {
+        hintText.style.display = "none";
+      } else {
+        // Pointfradrag for at anmode om hint
+        deductScore(HINT_PENALTY, "HINT");
+        state.hintsUsed = (state.hintsUsed || 0) + 1;
+        saveState();
+
+        hintText.style.display = "block";
+        playTone(600, 'sine', 0.08);
+      }
+    });
+
+    const audioToggleBtn = document.getElementById("audioToggleBtn");
+    audioToggleBtn.addEventListener("click", () => {
+      audioEnabled = !audioEnabled;
+      audioToggleBtn.textContent = audioEnabled ? "🔊" : "🔇";
+      if (audioEnabled) playTone(500, 'sine', 0.1);
+    });
+
+    /* =====================================================================
+       MAP EXPAND & BRIEFING MINIMIZE CONTROLS
+       ===================================================================== */
+    const mapFrame = document.getElementById("mapFrame");
+    const briefingBox = document.getElementById("briefingBox");
+    const toggleBriefingBtn = document.getElementById("toggleBriefingBtn");
+    const briefingHeader = document.getElementById("briefingHeader");
+    const expandMapBtn = document.getElementById("expandMapBtn");
+
+    let isMapExpanded = false;
+
+    function toggleMapSize() {
+      isMapExpanded = !isMapExpanded;
+      if (isMapExpanded) {
+        briefingBox.classList.add("minimized");
+        mapFrame.classList.add("large-map");
+        toggleBriefingBtn.textContent = "+ VIS ORDRE";
+        expandMapBtn.innerHTML = "🗗 <span>NORMAL</span>";
+      } else {
+        briefingBox.classList.remove("minimized");
+        mapFrame.classList.remove("large-map");
+        toggleBriefingBtn.textContent = "− SKJUL";
+        expandMapBtn.innerHTML = "⛶ <span>STORT KORT</span>";
+      }
+
+      // Smoothly trigger Leaflet resize
+      setTimeout(() => {
+        if (map) {
+          map.invalidateSize();
+          const current = CHECKPOINTS[state.currentStageIndex];
+          if (current) {
+            map.panTo([current.lat, current.lng]);
+          }
+        }
+      }, 310);
+    }
+
+    toggleBriefingBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMapSize();
+    });
+
+    briefingHeader.addEventListener("click", toggleMapSize);
+    expandMapBtn.addEventListener("click", toggleMapSize);
+
+    /* =====================================================================
+       ADMIN / PARENT CONTROLS
+       ===================================================================== */
+    const adminBtn = document.getElementById("adminBtn");
+    const adminModal = document.getElementById("adminModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const resetGameBtn = document.getElementById("resetGameBtn");
+    const jumpNextBtn = document.getElementById("jumpNextBtn");
+    const adminCheatSheet = document.getElementById("adminCheatSheet");
+
+    function updateCheatSheet() {
+      adminCheatSheet.innerHTML = `
+        <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #334; color: var(--accent-amber);">
+          <strong>SCORE STATUS:</strong> ${state.score} / 1000 point<br>
+          <span style="font-size:11px; color:var(--text-dim);">Hints: ${state.hintsUsed || 0} | GPS-opslag: ${state.gpsUsed || 0} | Forkerte svar: ${state.wrongAnswers || 0}</span>
+        </div>
+        <strong>FACITLISTE & SVAR:</strong><br><br>
+      ` +
+        CHECKPOINTS.map((cp, idx) => `
+          <div>
+            <strong>#${idx + 1} ${cp.title}:</strong><br>
+            Svar: <em>${cp.answers.join(" eller ")}</em><br>
+            Ciffer: <strong>${cp.unlockedDigit ? `[${cp.unlockedDigit}]` : 'Slut'}</strong>
+          </div>
+          <hr style="border:0; border-top:1px solid #334; margin: 4px 0;">
+        `).join("") + `
+          <div>
+            <strong>Skattekisten:</strong> ${TREASURE.title}<br>
+            ${TREASURE.coordsDisplay}
+          </div>
+        `;
+    }
+
+    adminBtn.addEventListener("click", () => {
+      updateCheatSheet();
+      adminModal.style.display = "flex";
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      adminModal.style.display = "none";
+    });
+
+    resetGameBtn.addEventListener("click", () => {
+      if (confirm("Vil du nulstille hele skattejagten og scoren tilbage til start?")) {
+        state = {
+          currentStageIndex: 0,
+          unlockedDigits: [null, null, null, null],
+          completed: false,
+          score: INITIAL_SCORE,
+          hintsUsed: 0,
+          gpsUsed: 0,
+          wrongAnswers: 0,
+          introSeen: false
+        };
+        userLocation = null;
+        if (squadMarker && map) {
+          map.removeLayer(squadMarker);
+          squadMarker = null;
+        }
+        if (pathLine && map) {
+          map.removeLayer(pathLine);
+          pathLine = null;
+        }
+        saveState();
+        render();
+        renderScore();
+        adminModal.style.display = "none";
+        showIntroIfNeeded();
+      }
+    });
+
+    jumpNextBtn.addEventListener("click", () => {
+      const current = CHECKPOINTS[state.currentStageIndex];
+      if (current.digitSlot !== null && current.unlockedDigit !== null) {
+        state.unlockedDigits[current.digitSlot] = current.unlockedDigit;
+      }
+      if (state.currentStageIndex < CHECKPOINTS.length - 1) {
+        state.currentStageIndex++;
+      } else {
+        state.completed = true;
+      }
+      saveState();
+      render();
+      adminModal.style.display = "none";
+    });
+
+    // Start
+    initAudio();
+    initMap();
+    loadState();
+    render();
+    showIntroIfNeeded();
+  </script>
+</body>
+</html>
