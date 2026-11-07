@@ -1,6 +1,6 @@
 # Operation Søndermarken: Agent Felt-Terminal
 
-Interaktiv web-app bygget til en 10-års fødselsdagsskattejagt i **Søndermarken, København**. Indeholder **indbygget OpenStreetMap**, live GPS-sporing med prikket kurslinje, pointfradrag og fuld lokal lagring af fremgang.
+Interaktiv web-app bygget til en 10-års fødselsdagsskattejagt i **Søndermarken, København**. Indeholder **indbygget OpenStreetMap**, GPS-geofencing (30 meters tjek-ind for at åbne gåder), prikket kurslinje, pointfradrag og fuld lokal lagring af fremgang.
 
 ---
 
@@ -21,9 +21,24 @@ Besøg derefter `http://localhost:8000` på din computer eller `http://<din-mac-
 
 ---
 
-## 🗺️ Ny Rækkefølge af Poster i Søndermarken
+## 🛰️ Fysisk Tjek-Ind & Afstandscheck (30 Meters Radius)
 
-Ruten starter ved stengrotten mod sydvest og bevæger sig naturskønt gennem parken:
+1. **Gåderne er låst undervejs:**
+   * Når drengene navigerer mod en post, er spørgsmålet og svarfeltet låst.
+   * Kortet viser dem vej med den pulserende radarnål og en prikket kurslinje.
+2. **Tjek Ind på Posten (Gratis når man er fremme!):**
+   * Når de ankommer, trykker de på **`📍 TJEK IND PÅ POSTEN`**.
+   * Hvis deres GPS-position er **under 30 meter** fra postens koordinater, låser missionsordren og svarfeltet automatisk op med grøn status og fanfare — **helt gratis (0 point fradrag)**!
+   * Hvis de trykker på knappen mens de er mere end 30 meter væk, trækkes **-25 point**, og displayet viser den præcise afstand (f.eks. *`⛔ I er ~68 meter væk (-25 point). Gå 38 meter tættere på!`*), så de ikke gætter eller tjekker for tidligt.
+
+---
+
+## 📜 Regler & Vejledning (📜 Ikon i Headeren)
+* Tryk på **📜-ikonet** øverst i bjælken når som helst for at åbne introen og reglerne igen undervejs i missionen.
+
+---
+
+## 🗺️ Rækkefølge af Poster i Søndermarken
 
 | # | Post | Koordinater (DMS) | Koordinater (Decimal) | Gåde / Opgave | Godkendte Svar | Låser op for |
 |---|---|---|---|---|---|:---:|
@@ -37,9 +52,10 @@ Ruten starter ved stengrotten mod sydvest og bevæger sig naturskønt gennem par
 ## ⭐ Pointsystem & Pointfradrag
 
 * **Startscore:** 1000 point
-* **Forkert svar fradrag:** `-25 PTS` hver gang der indtastes en forkert kode.
-* **GPS-opslagsfradrag:** `-25 PTS` hver gang patruljens placering og kurslinje opdateres.
-* **Hint-fradrag:** `-50 PTS` hvis patruljen anmoder om satellit-hjælp fra basen.
+* **Tjek-ind ved posten (< 30 m):** `0 PTS` (Gratis når de er fremme!)
+* **Positionsopslag for langt væk (> 30 m):** `-25 PTS`
+* **Forkert svar:** `-25 PTS` hver gang der indtastes et forkert svar.
+* **Hint fra basen:** `-50 PTS` hvis patruljen beder om hjælp til opgaven.
 
 ### Spion-Rang på Sejrsskærmen:
 * 🏆 **900+ point:** Mester-Spion *(Legendarisk)*
@@ -51,6 +67,7 @@ Ruten starter ved stengrotten mod sydvest og bevæger sig naturskønt gennem par
 
 ## ⚙️ Forældrekontrol (⚙️ Tandhjulet øverst til højre)
 Tryk på tandhjulet for at:
-* Se patruljens aktuelle score, antal fejl, hints og GPS-opslag.
-* Se facitlisten med alle koder.
+* Se patruljens telemetri: aktuel score, rang, nuværende post, fundne kodelås-cifre og antal fejl/hints/GPS-opslag (uden at afsløre gådernes facit).
+* Springe frem til næste post i nødstilfælde.
+* Installere appen på startskærmen (PWA).
 * Nulstille hele spillet og scoren (tilbage til 1000 point) inden festen starter.

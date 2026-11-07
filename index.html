@@ -513,6 +513,28 @@
       display: none;
     }
 
+    .briefing-box.locked-state {
+      border: 1px dashed rgba(255, 183, 3, 0.45);
+      background: rgba(255, 183, 3, 0.04);
+    }
+
+    .locked-card {
+      text-align: center;
+      padding: 10px 4px;
+    }
+
+    .locked-status-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 183, 3, 0.35);
+      color: #ffd166;
+    }
+
     /* INPUT SECTION */
     .input-section {
       display: flex;
@@ -811,7 +833,8 @@
           <div id="penaltyToast" class="penalty-toast" style="display:none;"></div>
         </div>
         <button class="icon-btn" id="audioToggleBtn" title="Slå lyd til/fra">🔊</button>
-        <button class="icon-btn" id="adminBtn" title="Missionskontrol / Forældre">⚙️</button>
+        <button class="icon-btn" id="rulesBtn" title="Regler og vejledning">📜</button>
+        <button class="icon-btn" id="adminBtn" title="Missionskontrol">⚙️</button>
       </div>
     </header>
 
@@ -847,29 +870,27 @@
           <button class="expand-map-btn" id="expandMapBtn" title="Gør kortet større">
             ⛶ <span>STORT KORT</span>
           </button>
-          <button class="gps-btn" id="trackGpsBtn" title="Opdater patruljens placering (-25 PTS)">
-            📍 <span>FIND OS (-25 PTS)</span>
+          <button class="gps-btn" id="trackGpsBtn" title="Tjek ind på posten (gratis under 30m)">
+            📍 <span>TJEK IND PÅ POSTEN</span>
           </button>
         </div>
 
         <div class="distance-banner">
-          <span id="distanceText">🎯 Mål: I Søndermarken</span>
+          <span id="distanceText">🎯 Mål: I Søndermarken (Krav: under 30 m)</span>
         </div>
       </div>
 
       <!-- BRIEFING & RIDDLE (COLLAPSIBLE) -->
       <div class="briefing-box" id="briefingBox">
         <div class="briefing-header" id="briefingHeader">
-          <span class="briefing-prompt">📜 MISSIONSORDRE</span>
+          <span class="briefing-prompt" id="briefingPrompt">📜 MISSIONSORDRE</span>
           <button type="button" class="minimize-toggle-btn" id="toggleBriefingBtn">− SKJUL</button>
         </div>
-        <div id="briefingContent" class="briefing-content">
-          Dybt inde blandt træerne ligger den historiske stengrotte. Gå hen til den mørke grotteåbning. Hvilket naturelement strømmede ud fra denne kilde: ILD, VAND eller VIND?
-        </div>
+        <div id="briefingContent" class="briefing-content"></div>
       </div>
 
       <!-- CODE INPUT FORM -->
-      <div class="input-section">
+      <div class="input-section" id="inputSection">
         <input 
           type="text" 
           id="answerInput" 
@@ -884,11 +905,9 @@
       </div>
 
       <!-- HINT SYSTEM -->
-      <div class="hint-container">
+      <div class="hint-container" id="hintContainer">
         <button class="hint-btn" id="hintToggleBtn">Anmod om hint fra basen (-50 PTS)</button>
-        <div class="hint-text" id="hintText">
-          Hint fra basen: Kildegrotten har fået sit navn efter en kilde. Tænk over hvad der springer ud af en kilde!
-        </div>
+        <div class="hint-text" id="hintText"></div>
       </div>
     </div>
 
@@ -929,27 +948,32 @@
   </div>
 
   <!-- INTRO / RULES MODAL (shown the first time the mission starts) -->
+  <!-- INTRO / RULES MODAL -->
   <div class="modal-backdrop" id="introModal">
     <div class="modal-card intro-card">
-      <div class="modal-title">🕵️ VELKOMMEN, AGENTER!</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div class="modal-title" style="margin-bottom: 0;">🕵️ VELKOMMEN, AGENTER!</div>
+        <button id="closeIntroBtn" style="background: transparent; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; padding: 2px 6px; line-height: 1;" title="Luk">✕</button>
+      </div>
       <p class="intro-lead">
         Jeres mission: find 4 hemmelige poster i Søndermarken, knæk gåderne og få koden til skattekisten.
       </p>
 
       <div class="intro-section-title">SÅDAN GØR I</div>
       <ol class="intro-list">
-        <li>Kortet viser den næste post med en blinkende radar. Brug <strong>STORT KORT</strong> for at se mere, og gå derhen sammen.</li>
+        <li>Kortet viser den næste post med en blinkende radar. Brug <strong>STORT KORT</strong> for at se stierne, og gå derhen sammen.</li>
+        <li>Når I er fremme ved målet, trykker I på <strong>📍 TJEK IND PÅ POSTEN</strong>. Er I under 30 meter fra posten, låser opgaven op!</li>
         <li>Læs <strong>📜 Missionsordren</strong> og find svaret på posten.</li>
         <li>Skriv svaret og tryk <strong>AFKRYPTER & TRANSMITTER</strong>.</li>
         <li>Hvert rigtigt svar giver et ciffer til hængelåsen og sender jer videre til næste post.</li>
         <li>Når alle 4 poster er løst, får I koden og skattens placering.</li>
       </ol>
 
-      <div class="intro-section-title">REGLER</div>
+      <div class="intro-section-title">REGLER & POINT</div>
       <ul class="intro-list">
         <li>I starter med <strong>1000 point</strong>.</li>
+        <li>📍 <strong>Tjek-ind på posten:</strong> Koster <strong>0 point (GRATIS)</strong> når I er fremme (&lt; 30 m). Tjekker I mens I er for langt væk: <strong>-25 point</strong>.</li>
         <li>Forkert svar: <strong>-25 point</strong>.</li>
-        <li>📍 <strong>FIND OS</strong> viser jeres placering på kortet: <strong>-25 point</strong> hver gang.</li>
         <li>Hint fra basen: <strong>-50 point</strong>.</li>
         <li>Hold sammen som patrulje, og pas på trafik og dyr.</li>
       </ul>
@@ -969,13 +993,13 @@
   <!-- ADMIN / PARENT CONTROLS MODAL -->
   <div class="modal-backdrop" id="adminModal">
     <div class="modal-card">
-      <div class="modal-title">MISSIONSKONTROL (FORÆLDRE-STYRING)</div>
-      <p style="font-size: 12px; color: var(--text-dim);">
-        Brug disse knapper til at se alle svar, teste posterne eller nulstille spillet inden fødselsdagen starter.
+      <div class="modal-title">MISSIONSKONTROL</div>
+      <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 6px;">
+        Status over patruljens fremskridt samt indstillinger.
       </p>
 
-      <div style="font-size: 12px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 4px;" id="adminCheatSheet">
-        <!-- populated dynamically -->
+      <div style="font-size: 12px; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px; border: 1px solid var(--border-glow);" id="adminCheatSheet">
+        <!-- populated dynamically with telemetry -->
       </div>
 
       <button class="modal-btn" id="jumpNextBtn">Spring frem til næste post</button>
@@ -1212,25 +1236,30 @@
       return Math.round(R * c);
     }
 
+    const UNLOCK_DISTANCE_METERS = 30;
+
     function updateDistance() {
       const distanceEl = document.getElementById("distanceText");
       const current = CHECKPOINTS[state.currentStageIndex];
       if (userLocation && current) {
         const dist = calculateDistance(userLocation.lat, userLocation.lng, current.lat, current.lng);
-        distanceEl.textContent = `📍 Afstand til post: ~${dist} meter`;
+        if (state.stationUnlocked) {
+          distanceEl.textContent = `📍 Afstand til post: ~${dist} meter (Posten er låst op! 🔓)`;
+        } else if (dist <= UNLOCK_DISTANCE_METERS) {
+          distanceEl.textContent = `🎯 I er fremme! (~${dist} meter). Opgaven er låst op!`;
+        } else {
+          distanceEl.textContent = `📍 Afstand til post: ~${dist} meter (Krav: under 30 m)`;
+        }
       } else {
-        distanceEl.textContent = `🎯 Mål: I Søndermarken`;
+        distanceEl.textContent = state.stationUnlocked
+          ? `🎯 Mål: I Søndermarken (Låst op 🔓)`
+          : `🎯 Mål: I Søndermarken (Låst indtil I er under 30m)`;
       }
     }
 
     // Geolocation Squad Tracker
     const trackGpsBtn = document.getElementById("trackGpsBtn");
     trackGpsBtn.addEventListener("click", () => {
-      // Score deduction for requesting squad position
-      deductScore(GPS_PENALTY, "GPS");
-      state.gpsUsed = (state.gpsUsed || 0) + 1;
-      saveState();
-
       if (!navigator.geolocation) {
         alert("GPS understøttes ikke af denne browser.");
         return;
@@ -1250,12 +1279,43 @@
             squadMarker = L.marker([userLocation.lat, userLocation.lng], { icon: createSquadIcon() }).addTo(map);
           }
 
-          trackGpsBtn.innerHTML = "📍 <span>POSITION FUNDET</span>";
+          const current = CHECKPOINTS[state.currentStageIndex];
+          const dist = calculateDistance(userLocation.lat, userLocation.lng, current.lat, current.lng);
           updateDistance();
           updatePathLine();
 
+          // Check if squad is within 30 meters
+          if (dist <= UNLOCK_DISTANCE_METERS) {
+            // At checkpoint: FREE (0 point deduction)
+            if (!state.stationUnlocked) {
+              state.stationUnlocked = true;
+              saveState();
+              playSuccessSound();
+              showPenaltyToast(`🔓 POST LÅST OP! (0 PTS)`, true);
+              render();
+            } else {
+              playSuccessSound();
+              showPenaltyToast(`🎯 VED MÅLET (${dist}M)`, true);
+              trackGpsBtn.innerHTML = `📍 <span>VED MÅLET (${dist}M)</span>`;
+            }
+          } else {
+            // Outside 30m: deduct penalty
+            deductScore(GPS_PENALTY, "FOR LANGT");
+            state.gpsUsed = (state.gpsUsed || 0) + 1;
+            saveState();
+
+            if (!state.stationUnlocked) {
+              trackGpsBtn.innerHTML = `📍 <span>FOR LANGT (${dist}M)</span>`;
+              const proxEl = document.getElementById("proximityStatus");
+              if (proxEl) {
+                proxEl.innerHTML = `<span style="color:var(--accent-red); font-weight:bold;">⛔ I er ~${dist} meter væk (-25 point).</span><br>Gå ${Math.round(dist - UNLOCK_DISTANCE_METERS)} meter tættere på og tryk på 'TJEK IND PÅ POSTEN'.`;
+              }
+            } else {
+              trackGpsBtn.innerHTML = `📍 <span>POSITION: ${dist}M</span>`;
+            }
+          }
+
           // Fit bounds to show both squad and target
-          const current = CHECKPOINTS[state.currentStageIndex];
           const bounds = L.latLngBounds([
             [userLocation.lat, userLocation.lng],
             [current.lat, current.lng]
@@ -1263,17 +1323,19 @@
           map.fitBounds(bounds, { padding: [45, 45], maxZoom: 18 });
         },
         (err) => {
-          alert("Kunne ikke hente GPS-signal. Sørg for at tillade lokalitet/placering i browseren.");
-          trackGpsBtn.innerHTML = "📍 <span>FIND OS (-25 PTS)</span>";
+          alert("Kunne ikke hente GPS-signal. Sørg for at tillade lokalitet/placering i telefonens browser.");
+          trackGpsBtn.innerHTML = state.stationUnlocked
+            ? "📍 <span>OPDATER POSITION</span>"
+            : "📍 <span>TJEK IND PÅ POSTEN</span>";
         },
-        { enableHighAccuracy: true, timeout: 10000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     });
 
     /* =====================================================================
        STATE MANAGEMENT & LOCAL STORAGE
        ===================================================================== */
-    const STORAGE_KEY = "sondermarken_agent_mission_v6";
+    const STORAGE_KEY = "sondermarken_agent_mission_v7";
     const INITIAL_SCORE = 1000;
     const HINT_PENALTY = 50;
     const GPS_PENALTY = 25;
@@ -1287,7 +1349,8 @@
       hintsUsed: 0,
       gpsUsed: 0,
       wrongAnswers: 0,
-      introSeen: false
+      introSeen: false,
+      stationUnlocked: false
     };
 
     function loadState() {
@@ -1299,6 +1362,7 @@
           if (state.score === undefined || state.score === null) {
             state.score = INITIAL_SCORE;
           }
+          state.stationUnlocked = Boolean(state.stationUnlocked);
         } catch (e) {}
       }
     }
@@ -1309,26 +1373,28 @@
 
     /* Score deduction and toast */
     let toastTimer = null;
-    function showPenaltyToast(text) {
+    function showPenaltyToast(text, isPositive = false) {
       const toast = document.getElementById("penaltyToast");
       if (!toast) return;
       toast.textContent = text;
+      toast.style.background = isPositive ? "rgba(0, 255, 136, 0.95)" : "rgba(255, 51, 102, 0.95)";
+      toast.style.color = isPositive ? "#031018" : "#fff";
       toast.style.display = "block";
       toast.style.animation = "none";
       toast.offsetHeight; // trigger reflow
-      toast.style.animation = "floatFade 1.6s forwards ease-out";
+      toast.style.animation = "floatFade 1.8s forwards ease-out";
 
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         toast.style.display = "none";
-      }, 1600);
+      }, 1800);
     }
 
     function deductScore(amount, reason) {
       state.score = Math.max(0, state.score - amount);
       saveState();
       renderScore();
-      showPenaltyToast(`-${amount} PTS (${reason})`);
+      showPenaltyToast(`-${amount} PTS (${reason})`, false);
       playPenaltySound();
     }
 
@@ -1396,22 +1462,41 @@
       }, 300);
     }
 
-    /* Intro / rules popup, shown the first time the mission starts */
+    /* Intro / rules popup, shown the first time the mission starts and via 📜 button */
     const introModal = document.getElementById("introModal");
+    const startMissionBtn = document.getElementById("startMissionBtn");
+    const closeIntroBtn = document.getElementById("closeIntroBtn");
+    const rulesBtn = document.getElementById("rulesBtn");
 
     function showIntroIfNeeded() {
       if (!state.introSeen && !state.completed) {
+        startMissionBtn.textContent = "START MISSIONEN";
         introModal.style.display = "flex";
       }
     }
 
-    document.getElementById("startMissionBtn").addEventListener("click", () => {
+    startMissionBtn.addEventListener("click", () => {
       state.introSeen = true;
       saveState();
       introModal.style.display = "none";
       initAudio();
       playSuccessSound();
     });
+
+    if (closeIntroBtn) {
+      closeIntroBtn.addEventListener("click", () => {
+        state.introSeen = true;
+        saveState();
+        introModal.style.display = "none";
+      });
+    }
+
+    if (rulesBtn) {
+      rulesBtn.addEventListener("click", () => {
+        startMissionBtn.textContent = "TILBAGE TIL MISSIONEN";
+        introModal.style.display = "flex";
+      });
+    }
 
     function render() {
       renderScore();
@@ -1451,7 +1536,53 @@
       targetCodeId.textContent = `POST-ID: #${state.currentStageIndex + 1}`;
       checkpointTitle.textContent = current.title;
       coordsDisplay.textContent = current.coordsDisplay;
-      briefingContent.textContent = current.briefing;
+
+      const briefingBox = document.getElementById("briefingBox");
+      const briefingPrompt = document.getElementById("briefingPrompt");
+      const inputSection = document.getElementById("inputSection");
+      const hintContainer = document.getElementById("hintContainer");
+      const toggleBriefingBtn = document.getElementById("toggleBriefingBtn");
+
+      if (state.stationUnlocked) {
+        briefingBox.classList.remove("locked-state");
+        briefingPrompt.innerHTML = "📜 MISSIONSORDRE <span style='color:var(--accent-green); font-size:11px;'>(LÅST OP 🔓)</span>";
+        briefingContent.textContent = current.briefing;
+        if (inputSection) inputSection.style.display = "flex";
+        if (hintContainer) hintContainer.style.display = "flex";
+        if (toggleBriefingBtn) toggleBriefingBtn.style.display = "inline-flex";
+        trackGpsBtn.innerHTML = "📍 <span>OPDATER POSITION</span>";
+      } else {
+        briefingBox.classList.add("locked-state");
+        briefingPrompt.innerHTML = "🔒 MISSIONSORDRE LÅST";
+        if (inputSection) inputSection.style.display = "none";
+        if (hintContainer) hintContainer.style.display = "none";
+        if (toggleBriefingBtn) toggleBriefingBtn.style.display = "none";
+        trackGpsBtn.innerHTML = "📍 <span>TJEK IND PÅ POSTEN</span>";
+
+        let distInfo = "Gå mod målet på kortet og tryk på <strong>'TJEK IND PÅ POSTEN'</strong>.";
+        if (userLocation) {
+          const d = calculateDistance(userLocation.lat, userLocation.lng, current.lat, current.lng);
+          distInfo = `<span style="color:var(--accent-red); font-weight:bold;">Afstand: ~${d} meter.</span><br>Gå ${d > UNLOCK_DISTANCE_METERS ? Math.round(d - UNLOCK_DISTANCE_METERS) + ' meter tættere på' : 'frem til posten'} og tryk på 'TJEK IND PÅ POSTEN'.`;
+        }
+
+        briefingContent.innerHTML = `
+          <div class="locked-card">
+            <div style="font-size: 28px; margin-bottom: 4px;">🛰️🔒</div>
+            <div style="font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 800; color: var(--accent-amber); margin-bottom: 6px;">
+              KRÆVER FYSISK ANKOMST
+            </div>
+            <p style="color: var(--text-main); font-size: 13px; line-height: 1.5; margin-bottom: 8px;">
+              I skal være under <strong>30 meter</strong> fra posten for at låse opgaven op.<br>
+              <span style="font-size: 12px; color: var(--accent-green); font-weight: 600;">🎯 Tjek-ind er <strong>GRATIS (0 point)</strong> når I er fremme!</span><br>
+              <span style="font-size: 11px; color: var(--text-dim);">(Tjekker I mens I er for langt væk koster det -25 point)</span>
+            </p>
+            <div class="locked-status-pill" id="proximityStatus">
+              ${distInfo}
+            </div>
+          </div>
+        `;
+      }
+
       hintText.textContent = current.hint;
       hintText.style.display = "none";
       feedbackMsg.textContent = "";
@@ -1497,6 +1628,7 @@
         setTimeout(() => {
           if (state.currentStageIndex < CHECKPOINTS.length - 1) {
             state.currentStageIndex++;
+            state.stationUnlocked = false;
           } else {
             state.completed = true;
           }
@@ -1609,26 +1741,39 @@
     const adminCheatSheet = document.getElementById("adminCheatSheet");
 
     function updateCheatSheet() {
+      const current = CHECKPOINTS[state.currentStageIndex];
+      const digitsStr = state.unlockedDigits.map(d => (d !== null ? `[ ${d} ]` : "[ ? ]")).join(" ");
       adminCheatSheet.innerHTML = `
-        <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid #334; color: var(--accent-amber);">
-          <strong>SCORE STATUS:</strong> ${state.score} / 1000 point<br>
-          <span style="font-size:11px; color:var(--text-dim);">Hints: ${state.hintsUsed || 0} | GPS-opslag: ${state.gpsUsed || 0} | Forkerte svar: ${state.wrongAnswers || 0}</span>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div>
+            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Patruljens Score & Rang</span><br>
+            <strong style="color:var(--accent-amber); font-size:15px;">${state.score} / 1000 point</strong><br>
+            <span style="font-size:11px; color:var(--accent-cyan);">${getAgentRank(state.score)}</span>
+          </div>
+
+          <div style="border-top:1px solid #334; padding-top:6px;">
+            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Aktuel Post</span><br>
+            <strong>Post ${state.currentStageIndex + 1} af ${CHECKPOINTS.length}: ${current ? current.title : 'Færdig'}</strong><br>
+            <span style="font-size:11px; color:${state.stationUnlocked ? 'var(--accent-green)' : 'var(--accent-amber)'};">
+              Status: ${state.stationUnlocked ? 'Låst op 🔓 (Patruljen er ankommet)' : 'Låst 🔒 (Afventer ankomst < 30m)'}
+            </span>
+          </div>
+
+          <div style="border-top:1px solid #334; padding-top:6px;">
+            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Kodelås Cifre Fundet</span><br>
+            <div style="font-family:'Orbitron', sans-serif; font-size:13px; color:var(--accent-cyan); letter-spacing:2px; margin-top:2px;">
+              ${digitsStr}
+            </div>
+          </div>
+
+          <div style="border-top:1px solid #334; padding-top:6px; font-size:11px; color:var(--text-dim); line-height:1.6;">
+            <strong style="color:var(--text-main);">Missions-Statistik:</strong><br>
+            • Brugte hints (-50 pts): <span style="color:var(--text-main);">${state.hintsUsed || 0}</span><br>
+            • GPS-opslag for langt væk (-25 pts): <span style="color:var(--text-main);">${state.gpsUsed || 0}</span><br>
+            • Forkerte svar (-25 pts): <span style="color:var(--text-main);">${state.wrongAnswers || 0}</span>
+          </div>
         </div>
-        <strong>FACITLISTE & SVAR:</strong><br><br>
-      ` +
-        CHECKPOINTS.map((cp, idx) => `
-          <div>
-            <strong>#${idx + 1} ${cp.title}:</strong><br>
-            Svar: <em>${cp.answers.join(" eller ")}</em><br>
-            Ciffer: <strong>${cp.unlockedDigit ? `[${cp.unlockedDigit}]` : 'Slut'}</strong>
-          </div>
-          <hr style="border:0; border-top:1px solid #334; margin: 4px 0;">
-        `).join("") + `
-          <div>
-            <strong>Skattekisten:</strong> ${TREASURE.title}<br>
-            ${TREASURE.coordsDisplay}
-          </div>
-        `;
+      `;
     }
 
     adminBtn.addEventListener("click", () => {
@@ -1650,7 +1795,8 @@
           hintsUsed: 0,
           gpsUsed: 0,
           wrongAnswers: 0,
-          introSeen: false
+          introSeen: false,
+          stationUnlocked: false
         };
         userLocation = null;
         if (squadMarker && map) {
@@ -1676,6 +1822,7 @@
       }
       if (state.currentStageIndex < CHECKPOINTS.length - 1) {
         state.currentStageIndex++;
+        state.stationUnlocked = false;
       } else {
         state.completed = true;
       }
