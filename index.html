@@ -51,10 +51,12 @@
       color: var(--text-main);
       font-family: 'Share Tech Mono', monospace;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 12px;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
       position: relative;
       overflow-x: hidden;
     }
@@ -847,6 +849,143 @@
       color: var(--accent-cyan);
       margin-bottom: 12px;
     }
+
+    .victory-col { min-width: 0; }
+
+    /* =====================================================================
+       TABLET (portrait & landscape): wider layout, larger type & touch targets
+       ===================================================================== */
+    @media (min-width: 700px) {
+      body { padding: max(20px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left)); }
+
+      .container {
+        max-width: 1280px;
+        gap: 16px;
+        padding-bottom: 0;
+      }
+
+      header { padding: 14px 20px; border-radius: 10px; }
+      .op-title { font-size: 16px; letter-spacing: 2px; }
+      .status-dot { width: 12px; height: 12px; }
+      .score-badge { font-size: 14px; padding: 7px 12px; }
+      .icon-btn { font-size: 18px; padding: 8px 14px; }
+      .penalty-toast { font-size: 12px; }
+
+      .vault-tracker { padding: 14px 18px; border-radius: 10px; }
+      .tracker-label { font-size: 13px; }
+      .code-slot { width: 54px; height: 62px; font-size: 28px; }
+      .code-slots { gap: 10px; }
+      .num-chip { font-size: 12px; padding: 5px 9px; }
+      .numbers-collected-bar { gap: 6px; }
+      .sum-status-text { font-size: 13px; }
+
+      .mission-card { padding: 20px 22px; gap: 16px; border-radius: 12px; }
+      .stage-badge { font-size: 13px; padding: 5px 10px; }
+      .target-code { font-size: 14px; }
+      .target-title { font-size: 28px; }
+
+      .map-header { font-size: 13px; }
+      .map-frame { height: 42vh; min-height: 320px; }
+      .map-frame.large-map { height: 62vh; }
+      .expand-map-btn, .gps-btn { font-size: 14px; padding: 10px 14px; bottom: 14px; }
+      .expand-map-btn { left: 14px; }
+      .gps-btn { right: 14px; }
+      .distance-banner { font-size: 15px; padding: 10px 14px; }
+
+      .briefing-box { font-size: 18px; line-height: 1.55; padding: 14px 18px; }
+      .briefing-prompt { font-size: 14px; }
+      .minimize-toggle-btn { font-size: 13px; padding: 6px 12px; }
+      .locked-status-pill { font-size: 15px; padding: 10px 16px; }
+
+      .code-input { font-size: 22px; padding: 16px 18px; }
+      .submit-btn { font-size: 18px; padding: 18px; }
+      .hint-btn { font-size: 15px; padding: 8px; }
+      .hint-text { font-size: 16px; padding: 14px; }
+      .feedback-msg { font-size: 16px; }
+
+      /* Victory screen: numbers & score on the left, treasure location on the right */
+      .victory-screen { padding: 32px 32px; }
+      .victory-title { font-size: 36px; }
+      .victory-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+        text-align: left;
+      }
+      .victory-col > p:first-child { margin-top: 0 !important; }
+      #victoryNumbersList { font-size: 16px !important; }
+      .treasure-coords { font-size: 17px; }
+      .treasure-map-frame { height: 340px; }
+      .treasure-map-link { font-size: 16px; }
+
+      /* Modals */
+      .modal-backdrop { padding: 32px; }
+      .modal-card { max-width: 620px; padding: 28px; gap: 14px; }
+      .modal-title { font-size: 20px; }
+      .modal-btn { padding: 14px; font-size: 16px; }
+      .intro-lead { font-size: 17px; }
+      .intro-section-title { font-size: 14px; }
+      .intro-list { font-size: 16px; line-height: 1.55; }
+      .intro-start-btn { font-size: 17px; padding: 18px; }
+    }
+
+    /* =====================================================================
+       TABLET LANDSCAPE: fill the screen, map left / mission right
+       ===================================================================== */
+    @media (min-width: 900px) and (orientation: landscape) {
+      .container {
+        max-width: none;
+        min-height: calc(100dvh - 40px);
+      }
+
+      /* Padlock tracker in a single compact row to save vertical space */
+      .vault-tracker {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px 22px;
+        padding: 10px 18px;
+      }
+      .tracker-label, .numbers-collected-bar, .sum-status-text { margin: 0; }
+      .code-slot { width: 46px; height: 52px; font-size: 24px; }
+
+      .mission-card {
+        flex: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(360px, 1fr);
+        grid-template-rows: auto auto auto auto 1fr;
+        grid-template-areas:
+          "map badge"
+          "map title"
+          "map brief"
+          "map input"
+          "map hint";
+        column-gap: 24px;
+        row-gap: 16px;
+        align-content: start;
+      }
+      .mission-card:has(.large-map) {
+        grid-template-columns: minmax(0, 2.4fr) minmax(320px, 1fr);
+      }
+      .badge-row { grid-area: badge; }
+      .target-title { grid-area: title; }
+      .map-section { grid-area: map; min-height: 0; }
+      .briefing-box { grid-area: brief; }
+      .input-section { grid-area: input; }
+      .hint-container { grid-area: hint; align-self: start; }
+
+      .map-frame,
+      .map-frame.large-map {
+        flex: 1;
+        height: auto;
+        min-height: 420px;
+      }
+
+      .victory-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; }
+      .treasure-map-frame { height: 46vh; min-height: 320px; }
+    }
   </style>
 </head>
 <body>
@@ -954,6 +1093,8 @@
         Fantastisk arbejde, agenter! I har fundet alle 7 poster og indsamlet de hemmelige koder!
       </p>
 
+      <div class="victory-columns">
+      <div class="victory-col">
       <!-- NUMBERS LIST & SUM INSTRUCTION -->
       <div class="victory-numbers-card" style="background: rgba(0,0,0,0.55); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left;">
         <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--accent-cyan); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; text-align: center;">
@@ -983,6 +1124,8 @@
         <div style="font-size: 13px; font-weight: bold; color: var(--accent-green);" id="finalRankDisplay">🏆 RANG: MESTER-SPION (LEGENDARISK)</div>
       </div>
 
+      </div>
+      <div class="victory-col">
       <p style="font-size: 14px; color: var(--accent-cyan); margin: 12px 0 8px;" id="finalLocationTitle">
         SKATTENS PLACERING: I [fjernet]
       </p>
@@ -998,6 +1141,8 @@
       <p style="font-size: 13px; color: var(--text-dim);">
         Skattekisten er gemt i [fjernet]. Find den, læg jeres 7 tal sammen, og indstil hængelåsens 5 hjul til jeres samlede resultat for at åbne skatten!
       </p>
+      </div>
+      </div>
     </div>
   </div>
 
@@ -1522,6 +1667,10 @@
           attributionControl: false
         }).setView([TREASURE.lat, TREASURE.lng], 18);
 
+        if (window.ResizeObserver) {
+          new ResizeObserver(() => treasureMap.invalidateSize()).observe(document.getElementById("treasureMap"));
+        }
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19
         }).addTo(treasureMap);
@@ -1629,7 +1778,7 @@
         return;
       }
 
-      missionCard.style.display = "flex";
+      missionCard.style.display = "";
       victoryScreen.style.display = "none";
 
       const current = CHECKPOINTS[state.currentStageIndex];
@@ -1799,6 +1948,10 @@
     const expandMapBtn = document.getElementById("expandMapBtn");
 
     let isMapExpanded = false;
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => { if (map) map.invalidateSize(); }).observe(mapFrame);
+    }
 
     function toggleMapSize() {
       isMapExpanded = !isMapExpanded;
