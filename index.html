@@ -873,7 +873,7 @@
 
     <!-- 5-DIGIT COMBINATION LOCK & SECRET NUMBERS TRACKER -->
     <div class="vault-tracker">
-      <div class="tracker-label">Skattekistens Kodelås (5 cifre) // Sum af 7 koder</div>
+      <div class="tracker-label">Hængelåsens 5 Hjul // Indsaml de 7 kodetal</div>
       <div class="code-slots">
         <div class="code-slot" id="slot-0">?</div>
         <div class="code-slot" id="slot-1">?</div>
@@ -882,7 +882,7 @@
         <div class="code-slot" id="slot-4">?</div>
       </div>
       <div class="numbers-collected-bar" id="numbersCollectedBar"></div>
-      <div class="sum-status-text" id="sumStatusText">Indsamlet sum: 0 / [fjernet] (0 af 7 poster)</div>
+      <div class="sum-status-text" id="sumStatusText">Indsamlede kodetal: 0 af 7 poster</div>
     </div>
 
     <!-- ACTIVE MISSION CARD -->
@@ -950,25 +950,31 @@
     <!-- VICTORY SCREEN -->
     <div class="victory-screen" id="victoryScreen">
       <div class="victory-title">MISSION FULDFØRT!</div>
-      <p style="color: var(--text-main); font-size: 15px; margin-bottom: 12px;">
-        Fantastisk arbejde, agenter! Alle 7 poster er fundet og løst, og alle hemmelige koder er indsamlet!
+      <p style="color: var(--text-main); font-size: 15px; margin-bottom: 14px;">
+        Fantastisk arbejde, agenter! I har fundet alle 7 poster og indsamlet de hemmelige koder!
       </p>
 
-      <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
-        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
-          LÆG DE 7 HEMMELIGE TAL SAMMEN:
+      <!-- NUMBERS LIST & SUM INSTRUCTION -->
+      <div class="victory-numbers-card" style="background: rgba(0,0,0,0.55); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left;">
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--accent-cyan); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; text-align: center;">
+          📋 DE 7 INDSAMLEDE KODETAL
         </div>
-        <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--accent-cyan); line-height: 1.8;" id="sumFormulaDisplay">
-          1.000 + 2.000 + 3.000 + 4.000 + 5.000 + 6.000 + 0
+        
+        <div id="victoryNumbersList" style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; margin-bottom: 12px;">
+          <!-- Dynamically listed -->
         </div>
-        <div style="font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent-green); margin-top: 6px;">
-          = [fjernet]
-        </div>
-      </div>
 
-      <div class="victory-code-box">
-        <div class="victory-code-label">HÆNGELÅSENS 5 CIFRE</div>
-        <div class="victory-code-val" id="finalCodeDisplay">[fjernet]</div>
+        <div style="border-top: 1px dashed rgba(0, 243, 255, 0.4); padding-top: 10px; text-align: center;">
+          <div style="font-size: 13px; color: var(--accent-amber); font-weight: bold; margin-bottom: 6px;">
+            🔢 OPGAVE TIL AGENTERNE:
+          </div>
+          <p style="font-size: 14px; color: #fff; font-weight: 600; line-height: 1.5; margin: 0 0 8px 0;">
+            Læg alle 7 tal sammen for at få den 5-cifrede pinkode til hængelåsen!
+          </p>
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--accent-green); background: rgba(0,255,136,0.1); border: 1px solid var(--accent-green); padding: 8px; border-radius: 6px;" id="sumFormulaDisplay">
+            <!-- Dynamically populated formula -->
+          </div>
+        </div>
       </div>
 
       <div class="victory-score-box">
@@ -990,7 +996,7 @@
       <a class="treasure-map-link" id="treasureMapLink" href="#" target="_blank" rel="noopener">Åbn i kort-app</a>
 
       <p style="font-size: 13px; color: var(--text-dim);">
-        Skattekisten er gemt i [fjernet]. Find den, og indstil hængelåsens 5 hjul til koden <strong>[fjernet]</strong> for at åbne fødselsdagsskatten!
+        Skattekisten er gemt i [fjernet]. Find den, læg jeres 7 tal sammen, og indstil hængelåsens 5 hjul til jeres samlede resultat for at åbne skatten!
       </p>
     </div>
   </div>
@@ -1013,7 +1019,7 @@
         <li>Læs <strong>📜 Missionsordren</strong> og find svaret på posten.</li>
         <li>Skriv svaret og tryk <strong>AFKRYPTER & TRANSMITTER</strong>.</li>
         <li>Hvert rigtigt svar afslører et <strong>hemmeligt tal</strong> til skattekodens sum.</li>
-        <li>Når alle 7 poster er løst, lægger I tallene sammen: Summen giver den 5-cifrede pinkode (<strong>[fjernet]</strong>) til hængelåsen og afslører skattens placering!</li>
+        <li>Når alle 7 poster er løst, lægger I tallene sammen: Summen er den 5-cifrede pinkode til hængelåsen, og skattens placering bliver afsløret!</li>
       </ol>
 
       <div class="intro-section-title">REGLER & POINT</div>
@@ -1113,10 +1119,6 @@
     /* =====================================================================
        CONFIGURABLE SETTINGS & CHECKPOINTS (Your Exact Søndermarken Coordinates)
        ===================================================================== */
-    // Physical padlock 5-digit PIN code (sum of all 7 checkpoint numbers)
-    const FINAL_PADLOCK_PIN = "[fjernet]";
-    const TARGET_SUM = [fjernet];
-
     const CHECKPOINTS = [
       {
         id: "POST-01",
@@ -1505,7 +1507,6 @@
     const hintText = document.getElementById("hintText");
     const missionCard = document.getElementById("missionCard");
     const victoryScreen = document.getElementById("victoryScreen");
-    const finalCodeDisplay = document.getElementById("finalCodeDisplay");
 
     /* Treasure location on the victory screen */
     let treasureMap = null;
@@ -1581,22 +1582,7 @@
     function render() {
       renderScore();
 
-      const currentSum = state.unlockedNumbers.reduce((acc, val) => acc + (val || 0), 0);
       const countUnlocked = state.unlockedNumbers.filter(n => n !== null).length;
-      const pinDigits = FINAL_PADLOCK_PIN.split(""); // ["?"]
-
-      pinDigits.forEach((digit, i) => {
-        const slotEl = document.getElementById(`slot-${i}`);
-        if (slotEl) {
-          if (state.completed) {
-            slotEl.textContent = digit;
-            slotEl.classList.add("unlocked");
-          } else {
-            slotEl.textContent = "?";
-            slotEl.classList.remove("unlocked");
-          }
-        }
-      });
 
       const numbersBar = document.getElementById("numbersCollectedBar");
       if (numbersBar) {
@@ -1610,10 +1596,10 @@
       const sumStatusText = document.getElementById("sumStatusText");
       if (sumStatusText) {
         if (state.completed) {
-          sumStatusText.innerHTML = `🎉 Samlet sum: <strong>${currentSum.toLocaleString("da-DK")}</strong> = Pinkode: <strong>[fjernet]</strong> 🔓`;
+          sumStatusText.innerHTML = `🎉 Alle ${CHECKPOINTS.length} kodetal fundet! Læg dem sammen for at få pinkoden 🔓`;
           sumStatusText.style.color = "var(--accent-green)";
         } else {
-          sumStatusText.innerHTML = `Indsamlet sum: <strong>${currentSum.toLocaleString("da-DK")}</strong> / [fjernet] (${countUnlocked} af ${CHECKPOINTS.length} poster)`;
+          sumStatusText.innerHTML = `Indsamlede kodetal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong> poster`;
           sumStatusText.style.color = "var(--accent-amber)";
         }
       }
@@ -1621,10 +1607,15 @@
       if (state.completed) {
         missionCard.style.display = "none";
         victoryScreen.style.display = "block";
-        finalCodeDisplay.textContent = "[fjernet]";
+        const victoryNumbersList = document.getElementById("victoryNumbersList");
+        if (victoryNumbersList) {
+          victoryNumbersList.innerHTML = CHECKPOINTS.map((cp, idx) =>
+            `<div style="display:flex; justify-content:space-between; gap:10px;"><span>Post ${idx + 1}: ${cp.title}</span><strong style="font-family:'Orbitron', sans-serif; color:var(--accent-cyan);">${cp.awardedNumber.toLocaleString("da-DK")}</strong></div>`
+          ).join("");
+        }
         const sumFormulaDisplay = document.getElementById("sumFormulaDisplay");
         if (sumFormulaDisplay) {
-          sumFormulaDisplay.textContent = CHECKPOINTS.map(cp => cp.awardedNumber.toLocaleString("da-DK")).join(" + ");
+          sumFormulaDisplay.textContent = CHECKPOINTS.map(cp => cp.awardedNumber.toLocaleString("da-DK")).join(" + ") + " = ?";
         }
         const finalScoreDisplay = document.getElementById("finalScoreDisplay");
         const finalRankDisplay = document.getElementById("finalRankDisplay");
@@ -1733,7 +1724,7 @@
 
         const isLast = state.currentStageIndex === CHECKPOINTS.length - 1;
         feedbackMsg.textContent = isLast
-          ? `KORREKT! 🎉 Sidste hemmelige tal fundet: +${current.awardedNumber.toLocaleString("da-DK")}! Lægger koderne sammen...`
+          ? `KORREKT! 🎉 Sidste hemmelige tal fundet: +${current.awardedNumber.toLocaleString("da-DK")}! Find skatten og læg tallene sammen!`
           : `KORREKT! 🎉 Postens hemmelige tal er: +${current.awardedNumber.toLocaleString("da-DK")}! Næste post transmitteres...`;
         feedbackMsg.className = "feedback-msg success";
 
@@ -1856,7 +1847,6 @@
     function updateCheatSheet() {
       const current = CHECKPOINTS[state.currentStageIndex];
       const countUnlocked = state.unlockedNumbers.filter(n => n !== null).length;
-      const currentSum = state.unlockedNumbers.reduce((acc, val) => acc + (val || 0), 0);
 
       adminCheatSheet.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:8px;">
@@ -1877,8 +1867,7 @@
           <div style="border-top:1px solid #334; padding-top:6px;">
             <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Hængelås & Kodetal</span><br>
             <div style="font-size:12px; color:var(--text-main); margin-top:2px;">
-              Fundne tal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong> (Sum: ${currentSum.toLocaleString('da-DK')} / [fjernet])<br>
-              Pinkode til 5-cifret lås: <strong style="font-family:'Orbitron', sans-serif; color:var(--accent-cyan); letter-spacing:1px;">[fjernet]</strong>
+              Fundne tal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong>
             </div>
           </div>
 
