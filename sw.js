@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sondermarken-agent-v4';
+const CACHE_NAME = 'sondermarken-agent-v5';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',

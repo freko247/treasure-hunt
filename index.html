@@ -211,11 +211,11 @@
     .code-slots {
       display: flex;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
     }
 
     .code-slot {
-      width: 44px;
+      width: 42px;
       height: 48px;
       border: 2px solid var(--border-glow);
       background: rgba(0, 0, 0, 0.6);
@@ -224,10 +224,43 @@
       align-items: center;
       justify-content: center;
       font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--accent-cyan);
       transition: all 0.4s ease;
+    }
+
+    .numbers-collected-bar {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .num-chip {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .num-chip.active {
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+      background: rgba(0, 255, 136, 0.15);
+      font-weight: 700;
+      box-shadow: 0 0 6px rgba(0, 255, 136, 0.3);
+    }
+
+    .sum-status-text {
+      margin-top: 6px;
+      font-size: 11px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--accent-amber);
     }
 
     .code-slot.unlocked {
@@ -838,21 +871,24 @@
       </div>
     </header>
 
-    <!-- 4-DIGIT COMBINATION LOCK TRACKER -->
+    <!-- 5-DIGIT COMBINATION LOCK & SECRET NUMBERS TRACKER -->
     <div class="vault-tracker">
-      <div class="tracker-label">Skattekistens Kodelås (4 cifre)</div>
+      <div class="tracker-label">Skattekistens Kodelås (5 cifre) // Sum af 7 koder</div>
       <div class="code-slots">
         <div class="code-slot" id="slot-0">?</div>
         <div class="code-slot" id="slot-1">?</div>
         <div class="code-slot" id="slot-2">?</div>
         <div class="code-slot" id="slot-3">?</div>
+        <div class="code-slot" id="slot-4">?</div>
       </div>
+      <div class="numbers-collected-bar" id="numbersCollectedBar"></div>
+      <div class="sum-status-text" id="sumStatusText">Indsamlet sum: 0 / [fjernet] (0 af 7 poster)</div>
     </div>
 
     <!-- ACTIVE MISSION CARD -->
     <div class="mission-card" id="missionCard">
       <div class="badge-row">
-        <span class="stage-badge" id="stageBadge">POST 1 / 4</span>
+        <span class="stage-badge" id="stageBadge">POST 1 / 7</span>
         <span class="target-code" id="targetCodeId">POST-ID: #01</span>
       </div>
 
@@ -915,11 +951,23 @@
     <div class="victory-screen" id="victoryScreen">
       <div class="victory-title">MISSION FULDFØRT!</div>
       <p style="color: var(--text-main); font-size: 15px; margin-bottom: 12px;">
-        Fantastisk arbejde, agenter! Alle 4 poster er løst, og kodelåsen til skattekisten er hacket!
+        Fantastisk arbejde, agenter! Alle 7 poster er fundet og løst, og alle hemmelige koder er indsamlet!
       </p>
 
+      <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
+        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+          LÆG DE 7 HEMMELIGE TAL SAMMEN:
+        </div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--accent-cyan); line-height: 1.8;" id="sumFormulaDisplay">
+          1.000 + 2.000 + 3.000 + 4.000 + 5.000 + 6.000 + 0
+        </div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent-green); margin-top: 6px;">
+          = [fjernet]
+        </div>
+      </div>
+
       <div class="victory-code-box">
-        <div class="victory-code-label">KODEN TIL HÆNGELÅSEN (4 CIFRE)</div>
+        <div class="victory-code-label">HÆNGELÅSENS 5 CIFRE</div>
         <div class="victory-code-val" id="finalCodeDisplay">[fjernet]</div>
       </div>
 
@@ -942,12 +990,11 @@
       <a class="treasure-map-link" id="treasureMapLink" href="#" target="_blank" rel="noopener">Åbn i kort-app</a>
 
       <p style="font-size: 13px; color: var(--text-dim);">
-        Skattekisten er gemt i [fjernet]. Find den, og drej hængelåsen til koden ovenfor for at åbne fødselsdagsskatten!
+        Skattekisten er gemt i [fjernet]. Find den, og indstil hængelåsens 5 hjul til koden <strong>[fjernet]</strong> for at åbne fødselsdagsskatten!
       </p>
     </div>
   </div>
 
-  <!-- INTRO / RULES MODAL (shown the first time the mission starts) -->
   <!-- INTRO / RULES MODAL -->
   <div class="modal-backdrop" id="introModal">
     <div class="modal-card intro-card">
@@ -956,17 +1003,17 @@
         <button id="closeIntroBtn" style="background: transparent; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; padding: 2px 6px; line-height: 1;" title="Luk">✕</button>
       </div>
       <p class="intro-lead">
-        Jeres mission: find 4 hemmelige poster i Søndermarken, knæk gåderne og få koden til skattekisten.
+        Jeres mission: find 7 hemmelige poster i Søndermarken, knæk gåderne og få koden til skattekisten.
       </p>
 
       <div class="intro-section-title">SÅDAN GØR I</div>
       <ol class="intro-list">
         <li>Kortet viser den næste post med en blinkende radar. Brug <strong>STORT KORT</strong> for at se stierne, og gå derhen sammen.</li>
-        <li>Når I er fremme ved målet, trykker I på <strong>📍 TJEK IND PÅ POSTEN</strong>. Er I under 30 meter fra posten, låser opgaven op!</li>
+        <li>Når I er fremme ved målet, trykker I på <strong>📍 TJEK IND PÅ POSTEN</strong>. Er I under 30 meter fra posten, låser opgaven op (helt gratis)!</li>
         <li>Læs <strong>📜 Missionsordren</strong> og find svaret på posten.</li>
         <li>Skriv svaret og tryk <strong>AFKRYPTER & TRANSMITTER</strong>.</li>
-        <li>Hvert rigtigt svar giver et ciffer til hængelåsen og sender jer videre til næste post.</li>
-        <li>Når alle 4 poster er løst, får I koden og skattens placering.</li>
+        <li>Hvert rigtigt svar afslører et <strong>hemmeligt tal</strong> til skattekodens sum.</li>
+        <li>Når alle 7 poster er løst, lægger I tallene sammen: Summen giver den 5-cifrede pinkode (<strong>[fjernet]</strong>) til hængelåsen og afslører skattens placering!</li>
       </ol>
 
       <div class="intro-section-title">REGLER & POINT</div>
@@ -1066,8 +1113,9 @@
     /* =====================================================================
        CONFIGURABLE SETTINGS & CHECKPOINTS (Your Exact Søndermarken Coordinates)
        ===================================================================== */
-    // Change this to whatever 4-digit combination is on your physical padlock!
-    const FINAL_PADLOCK_CODE = ["?", "?", "?", "?"];
+    // Physical padlock 5-digit PIN code (sum of all 7 checkpoint numbers)
+    const FINAL_PADLOCK_PIN = "[fjernet]";
+    const TARGET_SUM = [fjernet];
 
     const CHECKPOINTS = [
       {
@@ -1079,8 +1127,7 @@
         briefing: "Dybt inde blandt træerne ligger den historiske stengrotte. Gå hen til den mørke grotteåbning. Hvilket naturelement strømmede ud fra denne kilde: ILD, VAND eller VIND?",
         hint: "Kildegrotten har fået sit navn efter en kilde. Tænk over hvad der springer ud af en kilde!",
         answers: ["VAND", "VANDET", "WATER"],
-        unlockedDigit: FINAL_PADLOCK_CODE[0],
-        digitSlot: 0
+        awardedNumber: 1000
       },
       {
         id: "POST-02",
@@ -1088,26 +1135,35 @@
         lat: 55.670333,
         lng: 12.519278,
         coordsDisplay: "55°40'13.2\"N 12°31'09.4\"E",
-        briefing: "Gå mod det nordlige udsigtspunkt, hvor man kan kigge over muren ind i København Zoo. Lyt og kig godt efter. Hvilket rovdyr kaldes også for 'dyrenes konge'?",
-        hint: "Rovdyret med den store manke, der brøler inde i Zoo (LØVE).",
+        briefing: "Gå mod det nordlige udsigtspunkt mod Zoologisk Have. Her kan man kigge over muren ind til savannens vilde dyr. Hvilket stort kattedyr kaldes 'dyrenes konge'?",
+        hint: "Rovdyret med den store manke, der brøler over savannen.",
         answers: ["LØVE", "LØVEN", "LOVE", "LOVEN", "LION", "LIONS"],
-        unlockedDigit: FINAL_PADLOCK_CODE[1],
-        digitSlot: 1
+        awardedNumber: 2000
       },
       {
         id: "POST-03",
+        title: "Den Kinesiske Pavillon (Lysthuset)",
+        lat: 55.669544,
+        lng: 12.521179,
+        coordsDisplay: "55°40'10.4\"N 12°31'16.2\"E",
+        briefing: "Følg stien mod øst til det eventyrlige lysthus med det svungne tag. Hvilket asiatisk land har inspireret denne smukke pavillon: JAPAN, KINA eller INDIEN?",
+        hint: "Landets navn er en del af pavillonens officielle navn! (De byggede også Den Store Mur).",
+        answers: ["KINA", "CHINA"],
+        awardedNumber: 3000
+      },
+      {
+        id: "POST-04",
         title: "Cisternerne (De Hemmelige Pyramider)",
         lat: 55.669472,
         lng: 12.524194,
         coordsDisplay: "55°40'10.1\"N 12°31'27.1\"E",
         briefing: "Gå mod Cisternernes glaspyramider, der stikker op af græsset over det gamle underjordiske vandreservoir. Undersøg pyramiden. Hvor mange trekantede glassider mødes i toppen?",
-        hint: "Tæl de skrå trekantede sider på pyramiden (Svaret er et tal: 4).",
+        hint: "Tæl de skrå trekantede sider hele vejen rundt om pyramiden (en firkantet bund har 4 sider).",
         answers: ["4", "FIRE", "FOUR"],
-        unlockedDigit: FINAL_PADLOCK_CODE[2],
-        digitSlot: 2
+        awardedNumber: 4000
       },
       {
-        id: "POST-04",
+        id: "POST-05",
         title: "Det Norske Hus (Bjælkehytten)",
         lat: 55.670333,
         lng: 12.526861,
@@ -1115,8 +1171,29 @@
         briefing: "Find den historiske bjælkehytte bygget i 1790. Hvilket materiale er denne skovhytte primært bygget af: TRÆ, MURSTEN eller GLAS?",
         hint: "Kig godt på væggene og stammerne, som hytten er bygget af.",
         answers: ["TRÆ", "TRAE", "TRA", "WOOD", "BJÆLKER", "TØMMER"],
-        unlockedDigit: FINAL_PADLOCK_CODE[3],
-        digitSlot: 3
+        awardedNumber: 5000
+      },
+      {
+        id: "POST-06",
+        title: "Hundeparken (Fritløbsområdet)",
+        lat: 55.668650,
+        lng: 12.526255,
+        coordsDisplay: "55°40'07.1\"N 12°31'34.5\"E",
+        briefing: "Gå mod syd over de åbne bakker til parkens store fritløbsområde. Hvilket firbenet kæledyr må løbe frit omkring og lege her uden snor?",
+        hint: "Menneskets bedste ven, der logrer med halen og siger vov!",
+        answers: ["HUND", "HUNDE", "HUNDEN", "DOG", "DOGS"],
+        awardedNumber: 6000
+      },
+      {
+        id: "POST-07",
+        title: "Toilethuset (Den Gule Bygning)",
+        lat: 55.668398,
+        lng: 12.522713,
+        coordsDisplay: "55°40'06.2\"N 12°31'21.8\"E",
+        briefing: "Gå mod vest over den store plæne hen til det historiske hus ved aktivitetsområdet. Hvilken farve har husets pudsede mure: GUL, BLÅ eller RØD?",
+        hint: "Kig godt på væggene – det er samme varme farve som solen eller en moden banan!",
+        answers: ["GUL", "GULT", "GULE", "YELLOW"],
+        awardedNumber: 0
       }
     ];
 
@@ -1335,7 +1412,7 @@
     /* =====================================================================
        STATE MANAGEMENT & LOCAL STORAGE
        ===================================================================== */
-    const STORAGE_KEY = "sondermarken_agent_mission_v7";
+    const STORAGE_KEY = "sondermarken_agent_mission_v8";
     const INITIAL_SCORE = 1000;
     const HINT_PENALTY = 50;
     const GPS_PENALTY = 25;
@@ -1343,7 +1420,7 @@
 
     let state = {
       currentStageIndex: 0,
-      unlockedDigits: [null, null, null, null],
+      unlockedNumbers: Array(CHECKPOINTS.length).fill(null),
       completed: false,
       score: INITIAL_SCORE,
       hintsUsed: 0,
@@ -1359,6 +1436,9 @@
         try {
           const parsed = JSON.parse(saved);
           state = { ...state, ...parsed };
+          if (!Array.isArray(state.unlockedNumbers) || state.unlockedNumbers.length !== CHECKPOINTS.length) {
+            state.unlockedNumbers = Array(CHECKPOINTS.length).fill(null);
+          }
           if (state.score === undefined || state.score === null) {
             state.score = INITIAL_SCORE;
           }
@@ -1501,21 +1581,51 @@
     function render() {
       renderScore();
 
-      state.unlockedDigits.forEach((digit, i) => {
+      const currentSum = state.unlockedNumbers.reduce((acc, val) => acc + (val || 0), 0);
+      const countUnlocked = state.unlockedNumbers.filter(n => n !== null).length;
+      const pinDigits = FINAL_PADLOCK_PIN.split(""); // ["?"]
+
+      pinDigits.forEach((digit, i) => {
         const slotEl = document.getElementById(`slot-${i}`);
-        if (digit !== null) {
-          slotEl.textContent = digit;
-          slotEl.classList.add("unlocked");
-        } else {
-          slotEl.textContent = "?";
-          slotEl.classList.remove("unlocked");
+        if (slotEl) {
+          if (state.completed) {
+            slotEl.textContent = digit;
+            slotEl.classList.add("unlocked");
+          } else {
+            slotEl.textContent = "?";
+            slotEl.classList.remove("unlocked");
+          }
         }
       });
+
+      const numbersBar = document.getElementById("numbersCollectedBar");
+      if (numbersBar) {
+        numbersBar.innerHTML = CHECKPOINTS.map((cp, idx) => {
+          const val = state.unlockedNumbers[idx];
+          const isUnlocked = val !== null;
+          return `<div class="num-chip ${isUnlocked ? 'active' : ''}">#${idx + 1}: ${isUnlocked ? '+' + val.toLocaleString('da-DK') : '?'}</div>`;
+        }).join("");
+      }
+
+      const sumStatusText = document.getElementById("sumStatusText");
+      if (sumStatusText) {
+        if (state.completed) {
+          sumStatusText.innerHTML = `🎉 Samlet sum: <strong>${currentSum.toLocaleString("da-DK")}</strong> = Pinkode: <strong>[fjernet]</strong> 🔓`;
+          sumStatusText.style.color = "var(--accent-green)";
+        } else {
+          sumStatusText.innerHTML = `Indsamlet sum: <strong>${currentSum.toLocaleString("da-DK")}</strong> / [fjernet] (${countUnlocked} af ${CHECKPOINTS.length} poster)`;
+          sumStatusText.style.color = "var(--accent-amber)";
+        }
+      }
 
       if (state.completed) {
         missionCard.style.display = "none";
         victoryScreen.style.display = "block";
-        finalCodeDisplay.textContent = state.unlockedDigits.join(" ");
+        finalCodeDisplay.textContent = "[fjernet]";
+        const sumFormulaDisplay = document.getElementById("sumFormulaDisplay");
+        if (sumFormulaDisplay) {
+          sumFormulaDisplay.textContent = CHECKPOINTS.map(cp => cp.awardedNumber.toLocaleString("da-DK")).join(" + ");
+        }
         const finalScoreDisplay = document.getElementById("finalScoreDisplay");
         const finalRankDisplay = document.getElementById("finalRankDisplay");
         if (finalScoreDisplay) finalScoreDisplay.textContent = `${state.score} POINT`;
@@ -1618,12 +1728,14 @@
 
       if (isMatch) {
         playSuccessSound();
-        feedbackMsg.textContent = "KORREKT! TRANSMITTERER NÆSTE POST...";
-        feedbackMsg.className = "feedback-msg success";
+        state.unlockedNumbers[state.currentStageIndex] = current.awardedNumber;
+        saveState();
 
-        if (current.digitSlot !== null && current.unlockedDigit !== null) {
-          state.unlockedDigits[current.digitSlot] = current.unlockedDigit;
-        }
+        const isLast = state.currentStageIndex === CHECKPOINTS.length - 1;
+        feedbackMsg.textContent = isLast
+          ? `KORREKT! 🎉 Sidste hemmelige tal fundet: +${current.awardedNumber.toLocaleString("da-DK")}! Lægger koderne sammen...`
+          : `KORREKT! 🎉 Postens hemmelige tal er: +${current.awardedNumber.toLocaleString("da-DK")}! Næste post transmitteres...`;
+        feedbackMsg.className = "feedback-msg success";
 
         setTimeout(() => {
           if (state.currentStageIndex < CHECKPOINTS.length - 1) {
@@ -1634,7 +1746,8 @@
           }
           saveState();
           render();
-        }, 1200);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1500);
 
       } else {
         // Pointfradrag for forkert svar
@@ -1742,7 +1855,9 @@
 
     function updateCheatSheet() {
       const current = CHECKPOINTS[state.currentStageIndex];
-      const digitsStr = state.unlockedDigits.map(d => (d !== null ? `[ ${d} ]` : "[ ? ]")).join(" ");
+      const countUnlocked = state.unlockedNumbers.filter(n => n !== null).length;
+      const currentSum = state.unlockedNumbers.reduce((acc, val) => acc + (val || 0), 0);
+
       adminCheatSheet.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:8px;">
           <div>
@@ -1760,9 +1875,10 @@
           </div>
 
           <div style="border-top:1px solid #334; padding-top:6px;">
-            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Kodelås Cifre Fundet</span><br>
-            <div style="font-family:'Orbitron', sans-serif; font-size:13px; color:var(--accent-cyan); letter-spacing:2px; margin-top:2px;">
-              ${digitsStr}
+            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Hængelås & Kodetal</span><br>
+            <div style="font-size:12px; color:var(--text-main); margin-top:2px;">
+              Fundne tal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong> (Sum: ${currentSum.toLocaleString('da-DK')} / [fjernet])<br>
+              Pinkode til 5-cifret lås: <strong style="font-family:'Orbitron', sans-serif; color:var(--accent-cyan); letter-spacing:1px;">[fjernet]</strong>
             </div>
           </div>
 
@@ -1789,7 +1905,7 @@
       if (confirm("Vil du nulstille hele skattejagten og scoren tilbage til start?")) {
         state = {
           currentStageIndex: 0,
-          unlockedDigits: [null, null, null, null],
+          unlockedNumbers: Array(CHECKPOINTS.length).fill(null),
           completed: false,
           score: INITIAL_SCORE,
           hintsUsed: 0,
@@ -1817,9 +1933,7 @@
 
     jumpNextBtn.addEventListener("click", () => {
       const current = CHECKPOINTS[state.currentStageIndex];
-      if (current.digitSlot !== null && current.unlockedDigit !== null) {
-        state.unlockedDigits[current.digitSlot] = current.unlockedDigit;
-      }
+      state.unlockedNumbers[state.currentStageIndex] = current.awardedNumber;
       if (state.currentStageIndex < CHECKPOINTS.length - 1) {
         state.currentStageIndex++;
         state.stationUnlocked = false;
