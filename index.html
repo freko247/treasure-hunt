@@ -210,27 +210,7 @@
       text-transform: uppercase;
     }
 
-    .code-slots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-    }
 
-    .code-slot {
-      width: 42px;
-      height: 48px;
-      border: 2px solid var(--border-glow);
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--accent-cyan);
-      transition: all 0.4s ease;
-    }
 
     .numbers-collected-bar {
       margin-top: 10px;
@@ -265,13 +245,6 @@
       color: var(--accent-amber);
     }
 
-    .code-slot.unlocked {
-      border-color: var(--accent-green);
-      color: var(--accent-green);
-      box-shadow: 0 0 15px rgba(0, 255, 136, 0.45);
-      background: rgba(0, 255, 136, 0.12);
-      animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
 
     @keyframes pop {
       0% { transform: scale(0.7); }
@@ -699,28 +672,8 @@
       text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
     }
 
-    .victory-code-box {
-      background: rgba(0, 0, 0, 0.7);
-      border: 2px dashed var(--accent-green);
-      padding: 16px;
-      border-radius: 8px;
-      margin: 16px 0;
-    }
 
-    .victory-code-label {
-      font-size: 12px;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      margin-bottom: 6px;
-    }
 
-    .victory-code-val {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 38px;
-      font-weight: 900;
-      color: var(--accent-cyan);
-      letter-spacing: 6px;
-    }
 
     .victory-score-box {
       background: rgba(0, 0, 0, 0.55);
@@ -822,33 +775,9 @@
       color: var(--accent-green);
     }
 
-    /* TREASURE LOCATION (victory screen) */
-    .treasure-coords {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 14px;
-      color: var(--accent-amber);
-      margin-bottom: 10px;
-    }
 
-    .treasure-map-frame {
-      height: 200px;
-      border: 1px solid var(--accent-cyan);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
 
-    #treasureMap {
-      width: 100%;
-      height: 100%;
-    }
 
-    .treasure-map-link {
-      display: inline-block;
-      font-size: 13px;
-      color: var(--accent-cyan);
-      margin-bottom: 12px;
-    }
 
     .victory-col { min-width: 0; }
 
@@ -873,8 +802,6 @@
 
       .vault-tracker { padding: 14px 18px; border-radius: 10px; }
       .tracker-label { font-size: 13px; }
-      .code-slot { width: 54px; height: 62px; font-size: 28px; }
-      .code-slots { gap: 10px; }
       .num-chip { font-size: 12px; padding: 5px 9px; }
       .numbers-collected-bar { gap: 6px; }
       .sum-status-text { font-size: 13px; }
@@ -903,7 +830,7 @@
       .hint-text { font-size: 16px; padding: 14px; }
       .feedback-msg { font-size: 16px; }
 
-      /* Victory screen: numbers & score on the left, treasure location on the right */
+      /* Victory screen: solved posts on the left, score on the right */
       .victory-screen { padding: 32px 32px; }
       .victory-title { font-size: 36px; }
       .victory-columns {
@@ -915,9 +842,6 @@
       }
       .victory-col > p:first-child { margin-top: 0 !important; }
       #victoryNumbersList { font-size: 16px !important; }
-      .treasure-coords { font-size: 17px; }
-      .treasure-map-frame { height: 340px; }
-      .treasure-map-link { font-size: 16px; }
 
       /* Modals */
       .modal-backdrop { padding: 32px; }
@@ -949,7 +873,6 @@
         padding: 10px 18px;
       }
       .tracker-label, .numbers-collected-bar, .sum-status-text { margin: 0; }
-      .code-slot { width: 46px; height: 52px; font-size: 24px; }
 
       .mission-card {
         flex: 1;
@@ -983,8 +906,7 @@
         min-height: 420px;
       }
 
-      .victory-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 32px; }
-      .treasure-map-frame { height: 46vh; min-height: 320px; }
+      .victory-columns { gap: 32px; }
     }
   </style>
 </head>
@@ -1012,16 +934,9 @@
 
     <!-- 5-DIGIT COMBINATION LOCK & SECRET NUMBERS TRACKER -->
     <div class="vault-tracker">
-      <div class="tracker-label">Hængelåsens 5 Hjul // Indsaml de 7 kodetal</div>
-      <div class="code-slots">
-        <div class="code-slot" id="slot-0">?</div>
-        <div class="code-slot" id="slot-1">?</div>
-        <div class="code-slot" id="slot-2">?</div>
-        <div class="code-slot" id="slot-3">?</div>
-        <div class="code-slot" id="slot-4">?</div>
-      </div>
+      <div class="tracker-label">Missionens fremskridt // Løs de 7 poster</div>
       <div class="numbers-collected-bar" id="numbersCollectedBar"></div>
-      <div class="sum-status-text" id="sumStatusText">Indsamlede kodetal: 0 af 7 poster</div>
+      <div class="sum-status-text" id="sumStatusText">Løste poster: 0 af 7</div>
     </div>
 
     <!-- ACTIVE MISSION CARD -->
@@ -1090,57 +1005,29 @@
     <div class="victory-screen" id="victoryScreen">
       <div class="victory-title">MISSION FULDFØRT!</div>
       <p style="color: var(--text-main); font-size: 15px; margin-bottom: 14px;">
-        Fantastisk arbejde, agenter! I har fundet alle 7 poster og indsamlet de hemmelige koder!
+        Fantastisk arbejde, agenter! I har fundet og løst alle 7 poster i Søndermarken!
       </p>
 
       <div class="victory-columns">
       <div class="victory-col">
-      <!-- NUMBERS LIST & SUM INSTRUCTION -->
-      <div class="victory-numbers-card" style="background: rgba(0,0,0,0.55); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left;">
-        <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--accent-cyan); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; text-align: center;">
-          📋 DE 7 INDSAMLEDE KODETAL
-        </div>
-        
-        <div id="victoryNumbersList" style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4; margin-bottom: 12px;">
-          <!-- Dynamically listed -->
-        </div>
-
-        <div style="border-top: 1px dashed rgba(0, 243, 255, 0.4); padding-top: 10px; text-align: center;">
-          <div style="font-size: 13px; color: var(--accent-amber); font-weight: bold; margin-bottom: 6px;">
-            🔢 OPGAVE TIL AGENTERNE:
+        <div class="victory-numbers-card" style="background: rgba(0,0,0,0.55); border: 1px solid var(--accent-cyan); border-radius: 8px; padding: 14px; margin-bottom: 14px; text-align: left;">
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: 800; color: var(--accent-cyan); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; text-align: center;">
+            📋 LØSTE POSTER
           </div>
-          <p style="font-size: 14px; color: #fff; font-weight: 600; line-height: 1.5; margin: 0 0 8px 0;">
-            Læg alle 7 tal sammen for at få den 5-cifrede pinkode til hængelåsen!
-          </p>
-          <div style="font-family: 'Orbitron', sans-serif; font-size: 12px; color: var(--accent-green); background: rgba(0,255,136,0.1); border: 1px solid var(--accent-green); padding: 8px; border-radius: 6px;" id="sumFormulaDisplay">
-            <!-- Dynamically populated formula -->
+          <div id="victoryNumbersList" style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.4;">
+            <!-- Dynamically listed -->
           </div>
         </div>
-      </div>
-
-      <div class="victory-score-box">
-        <div style="font-size: 11px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;">PATRULJENS SLUT-SCORE</div>
-        <div style="font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 800; color: var(--accent-amber); margin: 6px 0;" id="finalScoreDisplay">1000 POINT</div>
-        <div style="font-size: 13px; font-weight: bold; color: var(--accent-green);" id="finalRankDisplay">🏆 RANG: MESTER-SPION (LEGENDARISK)</div>
-      </div>
-
       </div>
       <div class="victory-col">
-      <p style="font-size: 14px; color: var(--accent-cyan); margin: 12px 0 8px;" id="finalLocationTitle">
-        SKATTENS PLACERING: I [fjernet]
-      </p>
-
-      <div class="treasure-coords" id="treasureCoordsDisplay">📍 [fjernet]</div>
-
-      <div class="treasure-map-frame">
-        <div id="treasureMap"></div>
-      </div>
-
-      <a class="treasure-map-link" id="treasureMapLink" href="#" target="_blank" rel="noopener">Åbn i kort-app</a>
-
-      <p style="font-size: 13px; color: var(--text-dim);">
-        Skattekisten er gemt i [fjernet]. Find den, læg jeres 7 tal sammen, og indstil hængelåsens 5 hjul til jeres samlede resultat for at åbne skatten!
-      </p>
+        <div class="victory-score-box" style="margin-top: 0;">
+          <div style="font-size: 11px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;">PATRULJENS SLUT-SCORE</div>
+          <div style="font-family: 'Orbitron', sans-serif; font-size: 26px; font-weight: 800; color: var(--accent-amber); margin: 6px 0;" id="finalScoreDisplay">1000 POINT</div>
+          <div style="font-size: 13px; font-weight: bold; color: var(--accent-green);" id="finalRankDisplay">🏆 RANG: MESTER-SPION (LEGENDARISK)</div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">
+          Vil I prøve igen og slå jeres score? Åbn kontrolpanelet (⚙️) og nulstil missionen.
+        </p>
       </div>
       </div>
     </div>
@@ -1154,7 +1041,7 @@
         <button id="closeIntroBtn" style="background: transparent; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; padding: 2px 6px; line-height: 1;" title="Luk">✕</button>
       </div>
       <p class="intro-lead">
-        Jeres mission: find 7 hemmelige poster i Søndermarken, knæk gåderne og få koden til skattekisten.
+        Jeres mission: find 7 hemmelige poster i Søndermarken og knæk gåderne undervejs.
       </p>
 
       <div class="intro-section-title">SÅDAN GØR I</div>
@@ -1163,8 +1050,8 @@
         <li>Når I er fremme ved målet, trykker I på <strong>📍 TJEK IND PÅ POSTEN</strong>. Er I under 30 meter fra posten, låser opgaven op (helt gratis)!</li>
         <li>Læs <strong>📜 Missionsordren</strong> og find svaret på posten.</li>
         <li>Skriv svaret og tryk <strong>AFKRYPTER & TRANSMITTER</strong>.</li>
-        <li>Hvert rigtigt svar afslører et <strong>hemmeligt tal</strong> til skattekodens sum.</li>
-        <li>Når alle 7 poster er løst, lægger I tallene sammen: Summen er den 5-cifrede pinkode til hængelåsen, og skattens placering bliver afsløret!</li>
+        <li>Hvert rigtigt svar sender jer videre til næste post.</li>
+        <li>Når alle 7 poster er løst, er missionen fuldført, og I får jeres slut-score og spion-rang!</li>
       </ol>
 
       <div class="intro-section-title">REGLER & POINT</div>
@@ -1272,8 +1159,7 @@
         coordsDisplay: "55°40'10.6\"N 12°31'09.8\"E",
         briefing: "Dybt inde blandt træerne ligger den historiske stengrotte. Gå hen til den mørke grotteåbning. Hvilket naturelement strømmede ud fra denne kilde: ILD, VAND eller VIND?",
         hint: "Kildegrotten har fået sit navn efter en kilde. Tænk over hvad der springer ud af en kilde!",
-        answers: ["VAND", "VANDET", "WATER"],
-        awardedNumber: 1000
+        answers: ["VAND", "VANDET", "WATER"]
       },
       {
         id: "POST-02",
@@ -1283,8 +1169,7 @@
         coordsDisplay: "55°40'13.2\"N 12°31'09.4\"E",
         briefing: "Gå mod det nordlige udsigtspunkt mod Zoologisk Have. Her kan man kigge over muren ind til savannens vilde dyr. Hvilket stort kattedyr kaldes 'dyrenes konge'?",
         hint: "Rovdyret med den store manke, der brøler over savannen.",
-        answers: ["LØVE", "LØVEN", "LOVE", "LOVEN", "LION", "LIONS"],
-        awardedNumber: 2000
+        answers: ["LØVE", "LØVEN", "LOVE", "LOVEN", "LION", "LIONS"]
       },
       {
         id: "POST-03",
@@ -1294,8 +1179,7 @@
         coordsDisplay: "55°40'10.4\"N 12°31'16.2\"E",
         briefing: "Følg stien mod øst til det eventyrlige lysthus med det svungne tag. Hvilket asiatisk land har inspireret denne smukke pavillon: JAPAN, KINA eller INDIEN?",
         hint: "Landets navn er en del af pavillonens officielle navn! (De byggede også Den Store Mur).",
-        answers: ["KINA", "CHINA"],
-        awardedNumber: 3000
+        answers: ["KINA", "CHINA"]
       },
       {
         id: "POST-04",
@@ -1305,8 +1189,7 @@
         coordsDisplay: "55°40'10.1\"N 12°31'27.1\"E",
         briefing: "Gå mod Cisternernes glaspyramider, der stikker op af græsset over det gamle underjordiske vandreservoir. Undersøg pyramiden. Hvor mange trekantede glassider mødes i toppen?",
         hint: "Tæl de skrå trekantede sider hele vejen rundt om pyramiden (en firkantet bund har 4 sider).",
-        answers: ["4", "FIRE", "FOUR"],
-        awardedNumber: 4000
+        answers: ["4", "FIRE", "FOUR"]
       },
       {
         id: "POST-05",
@@ -1316,8 +1199,7 @@
         coordsDisplay: "55°40'13.2\"N 12°31'36.7\"E",
         briefing: "Find den historiske bjælkehytte bygget i 1790. Hvilket materiale er denne skovhytte primært bygget af: TRÆ, MURSTEN eller GLAS?",
         hint: "Kig godt på væggene og stammerne, som hytten er bygget af.",
-        answers: ["TRÆ", "TRAE", "TRA", "WOOD", "BJÆLKER", "TØMMER"],
-        awardedNumber: 5000
+        answers: ["TRÆ", "TRAE", "TRA", "WOOD", "BJÆLKER", "TØMMER"]
       },
       {
         id: "POST-06",
@@ -1327,8 +1209,7 @@
         coordsDisplay: "55°40'07.1\"N 12°31'34.5\"E",
         briefing: "Gå mod syd over de åbne bakker til parkens store fritløbsområde. Hvilket firbenet kæledyr må løbe frit omkring og lege her uden snor?",
         hint: "Menneskets bedste ven, der logrer med halen og siger vov!",
-        answers: ["HUND", "HUNDE", "HUNDEN", "DOG", "DOGS"],
-        awardedNumber: 6000
+        answers: ["HUND", "HUNDE", "HUNDEN", "DOG", "DOGS"]
       },
       {
         id: "POST-07",
@@ -1338,18 +1219,9 @@
         coordsDisplay: "55°40'06.2\"N 12°31'21.8\"E",
         briefing: "Gå mod vest over den store plæne hen til det historiske hus ved aktivitetsområdet. Hvilken farve har husets pudsede mure: GUL, BLÅ eller RØD?",
         hint: "Kig godt på væggene – det er samme varme farve som solen eller en moden banan!",
-        answers: ["GUL", "GULT", "GULE", "YELLOW"],
-        awardedNumber: 0
+        answers: ["GUL", "GULT", "GULE", "YELLOW"]
       }
     ];
-
-    // Where the treasure chest is hidden. Shown on the victory screen.
-    const TREASURE = {
-      title: "[fjernet]",
-      lat: 0.000000,
-      lng: 0.000000,
-      coordsDisplay: "[fjernet]"
-    };
 
     /* =====================================================================
        LEAFLET MAP INTEGRATION (OpenStreetMap Tiles - Free!)
@@ -1652,45 +1524,6 @@
     const missionCard = document.getElementById("missionCard");
     const victoryScreen = document.getElementById("victoryScreen");
 
-    /* Treasure location on the victory screen */
-    let treasureMap = null;
-
-    function showTreasureLocation() {
-      document.getElementById("treasureCoordsDisplay").textContent = `📍 ${TREASURE.coordsDisplay}`;
-      document.getElementById("treasureMapLink").href =
-        `https://www.google.com/maps/search/?api=1&query=${TREASURE.lat},${TREASURE.lng}`;
-
-      if (!treasureMap) {
-        treasureMap = L.map('treasureMap', {
-          zoomControl: false,
-          attributionControl: false
-        }).setView([TREASURE.lat, TREASURE.lng], 18);
-
-        if (window.ResizeObserver) {
-          new ResizeObserver(() => treasureMap.invalidateSize()).observe(document.getElementById("treasureMap"));
-        }
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19
-        }).addTo(treasureMap);
-
-        L.marker([TREASURE.lat, TREASURE.lng], {
-          icon: L.divIcon({
-            className: 'treasure-pin',
-            html: '<div style="font-size: 30px; line-height: 1;">🧰</div>',
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-          })
-        }).addTo(treasureMap);
-      }
-
-      // The map is created while the victory screen becomes visible, so let Leaflet re-measure
-      setTimeout(() => {
-        treasureMap.invalidateSize();
-        treasureMap.setView([TREASURE.lat, TREASURE.lng], 18);
-      }, 300);
-    }
-
     /* Intro / rules popup, shown the first time the mission starts and via 📜 button */
     const introModal = document.getElementById("introModal");
     const startMissionBtn = document.getElementById("startMissionBtn");
@@ -1735,19 +1568,18 @@
       const numbersBar = document.getElementById("numbersCollectedBar");
       if (numbersBar) {
         numbersBar.innerHTML = CHECKPOINTS.map((cp, idx) => {
-          const val = state.unlockedNumbers[idx];
-          const isUnlocked = val !== null;
-          return `<div class="num-chip ${isUnlocked ? 'active' : ''}">#${idx + 1}: ${isUnlocked ? '+' + val.toLocaleString('da-DK') : '?'}</div>`;
+          const isUnlocked = state.unlockedNumbers[idx] !== null;
+          return `<div class="num-chip ${isUnlocked ? 'active' : ''}">#${idx + 1} ${isUnlocked ? '✓' : '?'}</div>`;
         }).join("");
       }
 
       const sumStatusText = document.getElementById("sumStatusText");
       if (sumStatusText) {
         if (state.completed) {
-          sumStatusText.innerHTML = `🎉 Alle ${CHECKPOINTS.length} kodetal fundet! Læg dem sammen for at få pinkoden 🔓`;
+          sumStatusText.innerHTML = `🎉 Alle ${CHECKPOINTS.length} poster løst! Missionen er fuldført`;
           sumStatusText.style.color = "var(--accent-green)";
         } else {
-          sumStatusText.innerHTML = `Indsamlede kodetal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong> poster`;
+          sumStatusText.innerHTML = `Løste poster: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong>`;
           sumStatusText.style.color = "var(--accent-amber)";
         }
       }
@@ -1758,12 +1590,8 @@
         const victoryNumbersList = document.getElementById("victoryNumbersList");
         if (victoryNumbersList) {
           victoryNumbersList.innerHTML = CHECKPOINTS.map((cp, idx) =>
-            `<div style="display:flex; justify-content:space-between; gap:10px;"><span>Post ${idx + 1}: ${cp.title}</span><strong style="font-family:'Orbitron', sans-serif; color:var(--accent-cyan);">${cp.awardedNumber.toLocaleString("da-DK")}</strong></div>`
+            `<div style="display:flex; justify-content:space-between; gap:10px;"><span>Post ${idx + 1}: ${cp.title}</span><strong style="color:var(--accent-green);">✓</strong></div>`
           ).join("");
-        }
-        const sumFormulaDisplay = document.getElementById("sumFormulaDisplay");
-        if (sumFormulaDisplay) {
-          sumFormulaDisplay.textContent = CHECKPOINTS.map(cp => cp.awardedNumber.toLocaleString("da-DK")).join(" + ") + " = ?";
         }
         const finalScoreDisplay = document.getElementById("finalScoreDisplay");
         const finalRankDisplay = document.getElementById("finalRankDisplay");
@@ -1773,7 +1601,6 @@
           map.removeLayer(pathLine);
           pathLine = null;
         }
-        showTreasureLocation();
         return;
       }
 
@@ -1867,13 +1694,13 @@
 
       if (isMatch) {
         playSuccessSound();
-        state.unlockedNumbers[state.currentStageIndex] = current.awardedNumber;
+        state.unlockedNumbers[state.currentStageIndex] = true;
         saveState();
 
         const isLast = state.currentStageIndex === CHECKPOINTS.length - 1;
         feedbackMsg.textContent = isLast
-          ? `KORREKT! 🎉 Sidste hemmelige tal fundet: +${current.awardedNumber.toLocaleString("da-DK")}! Find skatten og læg tallene sammen!`
-          : `KORREKT! 🎉 Postens hemmelige tal er: +${current.awardedNumber.toLocaleString("da-DK")}! Næste post transmitteres...`;
+          ? `KORREKT! 🎉 Sidste post er løst! Missionen er fuldført...`
+          : `KORREKT! 🎉 Posten er løst! Næste post transmitteres...`;
         feedbackMsg.className = "feedback-msg success";
 
         setTimeout(() => {
@@ -2016,9 +1843,9 @@
           </div>
 
           <div style="border-top:1px solid #334; padding-top:6px;">
-            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Hængelås & Kodetal</span><br>
+            <span style="color:var(--text-dim); font-size:11px; text-transform:uppercase; letter-spacing:1px;">Fremskridt</span><br>
             <div style="font-size:12px; color:var(--text-main); margin-top:2px;">
-              Fundne tal: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong>
+              Løste poster: <strong>${countUnlocked} af ${CHECKPOINTS.length}</strong>
             </div>
           </div>
 

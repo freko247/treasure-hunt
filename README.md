@@ -38,22 +38,17 @@ Besøg derefter `http://localhost:8000` på din computer eller `http://<din-mac-
 
 ---
 
-## 🗺️ De 7 Poster i Søndermarken & Hængelåsens Kodesum
+## 🗺️ De 7 Poster i Søndermarken
 
-| # | Post | Koordinater (DMS) | Koordinater (Decimal) | Gåde / Opgave | Godkendte Svar | Hemmeligt Kodetal |
-|---|---|---|---|---|---|:---:|
-| **1** | **Kildegrotten** *(Stengrotten)* | `55°40'10.6"N 12°31'09.8"E` | `55.669611, 12.519389` | Hvilket element strømmede ud fra kilden: ILD, VAND eller VIND? | `VAND`, `WATER` | **+1.000** |
-| **2** | **Zoo Udsigtspunktet** *(Savannen)* | `55°40'13.2"N 12°31'09.4"E` | `55.670333, 12.519278` | Rovdyret der kaldes 'dyrenes konge' bag muren | `LØVE`, `LION` | **+2.000** |
-| **3** | **Den Kinesiske Pavillon** *(Lysthuset)* | `55°40'10.4"N 12°31'16.2"E` | `55.669544, 12.521179` | Hvilket asiatisk land har inspireret lysthuset med det svungne tag? | `KINA`, `CHINA` | **+3.000** |
-| **4** | **Cisternerne** *(De Hemmelige Pyramider)* | `55°40'10.1"N 12°31'27.1"E` | `55.669472, 12.524194` | Tæl de trekantede glassider på pyramiden | `4`, `FIRE`, `FOUR` | **+4.000** |
-| **5** | **Det Norske Hus** *(Bjælkehytten)* | `55°40'13.2"N 12°31'36.7"E` | `55.670333, 12.526861` | Materialet denne skovhytte er bygget af | `TRÆ`, `TRAE`, `WOOD` | **+5.000** |
-| **6** | **Hundeparken** *(Fritløbsområdet)* | `55°40'07.1"N 12°31'34.5"E` | `55.668650, 12.526255` | Kæledyret der må løbe frit omkring og lege uden snor | `HUND`, `HUNDE`, `DOG` | **+6.000** |
-| **7** | **Toilethuset** *(Den Gule Bygning)* | `55°40'06.2"N 12°31'21.8"E` | `55.668398, 12.522713` | Farven på facadens mure (GUL, BLÅ eller RØD) | `GUL`, `GULT`, `YELLOW` | **+0** |
-
-### 🔐 Beregning af Hængelåsens 5 Cifre:
-$$1.000 + 2.000 + 3.000 + 4.000 + 5.000 + 6.000 + 0 = \mathbf{[fjernet]}$$
-* **Hængelåsens 5 hjul indstilles til:** `[fjernet]`
-* **Skattekistens placering:** *I [fjernet]* (`[fjernet]`)
+| # | Post | Koordinater (DMS) | Koordinater (Decimal) | Gåde / Opgave | Godkendte Svar |
+|---|---|---|---|---|---|
+| **1** | **Kildegrotten** *(Stengrotten)* | `55°40'10.6"N 12°31'09.8"E` | `55.669611, 12.519389` | Hvilket element strømmede ud fra kilden: ILD, VAND eller VIND? | `VAND`, `WATER` |
+| **2** | **Zoo Udsigtspunktet** *(Savannen)* | `55°40'13.2"N 12°31'09.4"E` | `55.670333, 12.519278` | Rovdyret der kaldes 'dyrenes konge' bag muren | `LØVE`, `LION` |
+| **3** | **Den Kinesiske Pavillon** *(Lysthuset)* | `55°40'10.4"N 12°31'16.2"E` | `55.669544, 12.521179` | Hvilket asiatisk land har inspireret lysthuset med det svungne tag? | `KINA`, `CHINA` |
+| **4** | **Cisternerne** *(De Hemmelige Pyramider)* | `55°40'10.1"N 12°31'27.1"E` | `55.669472, 12.524194` | Tæl de trekantede glassider på pyramiden | `4`, `FIRE`, `FOUR` |
+| **5** | **Det Norske Hus** *(Bjælkehytten)* | `55°40'13.2"N 12°31'36.7"E` | `55.670333, 12.526861` | Materialet denne skovhytte er bygget af | `TRÆ`, `TRAE`, `WOOD` |
+| **6** | **Hundeparken** *(Fritløbsområdet)* | `55°40'07.1"N 12°31'34.5"E` | `55.668650, 12.526255` | Kæledyret der må løbe frit omkring og lege uden snor | `HUND`, `HUNDE`, `DOG` |
+| **7** | **Toilethuset** *(Den Gule Bygning)* | `55°40'06.2"N 12°31'21.8"E` | `55.668398, 12.522713` | Farven på facadens mure (GUL, BLÅ eller RØD) | `GUL`, `GULT`, `YELLOW` |
 
 ---
 
@@ -75,7 +70,6 @@ $$1.000 + 2.000 + 3.000 + 4.000 + 5.000 + 6.000 + 0 = \mathbf{[fjernet]}$$
 
 ## ⚙️ Forældrekontrol (⚙️ Tandhjulet øverst til højre)
 Tryk på tandhjulet for at:
-* Se patruljens telemetri: aktuel score, rang, nuværende post, fundne kodelås-cifre og antal fejl/hints/GPS-opslag (uden at afsløre gådernes facit).
-* Springe frem til næste post i nødstilfælde.
+* Se patruljens telemetri: aktuel score, rang, nuværende post, antal løste poster og antal fejl/hints/GPS-opslag (uden at afsløre gådernes facit).
 * Installere appen på startskærmen (PWA).
 * Nulstille hele spillet og scoren (tilbage til 1000 point) inden festen starter.
